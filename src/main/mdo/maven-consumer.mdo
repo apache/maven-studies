@@ -81,7 +81,7 @@
         <!-- Model Version                                                          -->
         <!-- ====================================================================== -->
 
-        <field><!-- TBD keep in consumer? -->
+        <field>
           <name>modelVersion</name>
           <version>4.0.0+</version>
           <required>true</required>
@@ -123,7 +123,7 @@
           <description>The current version of the artifact produced by this project.</description>
           <type>String</type>
         </field>
-        <field><!-- TBD keep in consumer? -->
+        <field>
           <name>packaging</name>
           <version>4.0.0+</version>
           <description>
@@ -226,6 +226,15 @@
           <description>Describes the contributors to a project that are not yet committers.</description>
           <association>
             <type>Contributor</type>
+            <multiplicity>*</multiplicity>
+          </association>
+        </field>
+        <field xdoc.separator="blank"><!-- TBD keep in consumer? -->
+          <name>mailingLists</name>
+          <version>3.0.0+</version>
+          <description>Contains information about a project's mailing lists.</description>
+          <association>
+            <type>MailingList</type>
             <multiplicity>*</multiplicity>
           </association>
         </field>
@@ -770,6 +779,81 @@
       </fields>
     </class>
     <class java.clone="deep">
+      <name>MailingList</name>
+      <version>3.0.0+</version>
+      <description>This element describes all of the mailing lists associated with a project. The
+        auto-generated site references this information.</description>
+      <fields>
+        <field>
+          <name>name</name>
+          <version>3.0.0+</version>
+          <description>
+            <![CDATA[
+            The name of the mailing list.
+            ]]>
+          </description>
+          <type>String</type>
+        </field>
+        <field>
+          <name>subscribe</name>
+          <version>3.0.0+</version>
+          <description>
+            <![CDATA[
+            The email address or link that can be used to subscribe to
+            the mailing list.  If this is an email address, a
+            <code>mailto:</code> link will automatically be created
+            when the documentation is created.
+            ]]>
+          </description>
+          <type>String</type>
+        </field>
+        <field>
+          <name>unsubscribe</name>
+          <version>3.0.0+</version>
+          <description>
+            <![CDATA[
+            The email address or link that can be used to unsubscribe to
+            the mailing list.  If this is an email address, a
+            <code>mailto:</code> link will automatically be created
+            when the documentation is created.
+            ]]>
+          </description>
+          <type>String</type>
+        </field>
+        <field>
+          <name>post</name>
+          <version>3.0.0+</version>
+          <description>
+            <![CDATA[
+            The email address or link that can be used to post to
+            the mailing list.  If this is an email address, a
+            <code>mailto:</code> link will automatically be created
+            when the documentation is created.
+            ]]>
+          </description>
+          <type>String</type>
+        </field>
+        <field>
+          <name>archive</name>
+          <version>3.0.0+</version>
+          <description>The link to a URL where you can browse the mailing list archive.</description>
+          <type>String</type>
+        </field>
+        <field>
+          <name>otherArchives</name>
+          <version>3.0.0+</version>
+          <description>The link to alternate URLs where you can browse the list archive.</description>
+          <association>
+            <type>String</type>
+            <multiplicity>*</multiplicity>
+          </association>
+        </field>
+      </fields>
+      <comment>We could probably have a specific element for a dev mailing list for things like CI,
+        and maybe even a specific element for the user and scm mailing lists. Then leave the more
+        lose structure for any other type of mailing list.</comment>
+    </class>
+    <class java.clone="deep">
       <name>Organization</name>
       <description>Specifies the organization that produces this project.</description>
       <version>3.0.0+</version>
@@ -1015,7 +1099,7 @@
             activation, and identifies profiles to be merged.
           </description>
         </field>
-        <field><!-- TBD keep in consumer? -->
+        <field>
           <name>activation</name>
           <version>4.0.0+</version>
           <description>The conditional logic which will automatically trigger the inclusion of this
@@ -1098,57 +1182,6 @@
             <type>ActivationOS</type>
           </association>
         </field>
-        <field>
-          <name>property</name>
-          <version>4.0.0+</version>
-          <description>Specifies that this profile will be activated when this system property is
-            specified.</description>
-          <association>
-            <type>ActivationProperty</type>
-          </association>
-        </field>
-        <field>
-          <name>file</name>
-          <version>4.0.0+</version>
-          <description>Specifies that this profile will be activated based on existence of a file.</description>
-          <association>
-            <type>ActivationFile</type>
-          </association>
-        </field>
-        <!--
-        This could be included once we teach Maven to deal with multiple versions of the model
-        <field>
-          <name>custom</name>
-          <version>4.0.0+</version>
-          <description>Describes a custom profile activation trigger, brought in via build
-            extension.</description>
-          <association>
-            <type>ActivationCustom</type>
-          </association>
-        </field>
-        -->
-      </fields>
-    </class>
-    <class java.clone="deep"><!-- TBD keep in consumer? -->
-      <name>ActivationProperty</name>
-      <version>4.0.0+</version>
-      <description>This is the property specification used to activate a profile. If the value field
-        is empty, then the existence of the named property will activate the profile, otherwise it
-        does a case-sensitive match against the property value as well.</description>
-      <fields>
-        <field>
-          <name>name</name>
-          <version>4.0.0+</version>
-          <type>String</type>
-          <required>true</required>
-          <description>The name of the property to be used to activate a profile.</description>
-        </field>
-        <field>
-          <name>value</name>
-          <version>4.0.0+</version>
-          <type>String</type>
-          <description>The value of the property required to activate a profile.</description>
-        </field>
       </fields>
     </class>
     <class java.clone="deep"><!-- TBD keep in consumer? -->
@@ -1195,55 +1228,6 @@
         </field>
       </fields>
     </class>
-    <class java.clone="deep"><!-- TBD keep in consumer? -->
-      <name>ActivationFile</name>
-      <version>4.0.0+</version>
-      <description><![CDATA[This is the file specification used to activate the profile. The <code>missing</code> value
-        is the location of a file that needs to exist, and if it doesn't, the profile will be
-        activated. On the other hand, <code>exists</code> will test for the existence of the file and if it is
-        there, the profile will be activated.<br>
-        Variable interpolation for these file specifications is limited to <code>${basedir}</code>,
-        System properties and request properties.]]></description>
-      <fields>
-        <field>
-          <name>missing</name>
-          <version>4.0.0+</version>
-          <type>String</type>
-          <description>The name of the file that must be missing to activate the
-          profile.</description>
-        </field>
-        <field>
-          <name>exists</name>
-          <version>4.0.0+</version>
-          <type>String</type>
-          <description>The name of the file that must exist to activate the profile.</description>
-        </field>
-      </fields>
-    </class>
-    <!--
-    This can be put back in when we figure out how to have multiple model versions
-    <class>
-      <name>ActivationCustom</name>
-      <version>4.0.0+</version>
-      <description>This activation allows users to specify their own custom trigger for a profile.</description>
-      <fields>
-        <field>
-          <name>configuration</name>
-          <version>4.0.0+</version>
-          <type>DOM</type>
-          <description>The specification for triggering the profile according to the rules of the
-            custom activation type.</description>
-        </field>
-        <field>
-          <name>type</name>
-          <version>4.0.0+</version>
-          <type>String</type>
-          <description>The type (role-hint) of activation which is to be used to activate the
-            profile.</description>
-        </field>
-      </fields>
-    </class>
-    -->
     <!-- /BuildProfile support -->
     <class java.clone="deep">
       <name>Prerequisites</name>
