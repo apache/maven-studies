@@ -28,7 +28,7 @@ import org.apache.maven.execution.MavenSession;
 
 /**
  * Lifecycle Participant demo (feature added in Maven 3.0-alpha-3 with
- * <a href="https://issues.apache.org/jira/browse/MNG-4224">MNG-4224</a>.
+ * <a href="https://issues.apache.org/jira/browse/MNG-4224">MNG-4224</a>).
  */
 @Named( "demo" )
 @Singleton

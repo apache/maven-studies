@@ -23,9 +23,9 @@ under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-plugins</artifactId>
-    <version>31</version>
+    <groupId>org.apache.maven</groupId>
+    <artifactId>maven-parent</artifactId>
+    <version>32</version>
   </parent>
 
   <groupId>org.apache.maven.demo</groupId>
@@ -33,8 +33,23 @@ under the License.
   <version>0.0.1-SNAPSHOT</version>
 
   <name>maven-extension-demo</name>
+  <url>https://maven.apache.org/studies/extension-demo/</url>
+
+  <scm>
+    <connection>scm:git:https://git-wip-us.apache.org/repos/asf/maven-studies.git</connection>
+    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/maven-studies.git</developerConnection>
+    <url>https://github.com/apache/maven-studies/tree/${project.scm.tag}</url>
+    <tag>maven-extension-demo</tag>
+  </scm>
+  <distributionManagement>
+    <site>
+      <id>apache.website</id>
+      <url>scm:svn:https://svn.apache.org/repos/infra/websites/production/maven/components/${maven.site.path}</url>
+    </site>
+  </distributionManagement>
 
   <properties>
+    <maven.site.path>studies/extension-demo</maven.site.path>
     <mavenVersion>3.1.1</mavenVersion>
   </properties>
 
@@ -57,4 +72,46 @@ under the License.
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+       <!-- don't install or deploy artifact: this study is not intended for that currently -->
+      <plugin>
+        <artifactId>maven-install-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <!-- site mono-module svnpubsub deployment optimization -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <configuration>
+          <skipDeploy>true</skipDeploy><!-- don't deploy site with maven-site-plugin -->
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-scm-publish-plugin</artifactId>
+        <configuration>
+          <content>${project.reporting.outputDirectory}</content><!-- mono-module doesn't require site:stage -->
+        </configuration>
+        <executions>
+          <execution>
+            <id>scm-publish</id>
+            <phase>site-deploy</phase><!-- deploy site with maven-scm-publish-plugin -->
+            <goals>
+              <goal>publish-scm</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
