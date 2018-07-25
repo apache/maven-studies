@@ -16,16 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-assert new File(basedir, 'build.log').exists();
+assert new File( basedir, 'build.log' ).exists();
 
-content = new File(basedir, 'build.log').text;
+content = new File( basedir, 'build.log' ).text;
+
+assert !content.contains( 'LifecycleParticipantDemoPlexus afterSessionStart' ); // not yet activated when POM extension
+assert content.contains( 'LifecycleParticipantDemoPlexus afterProjectsRead' );
+// do not test since valid only since Maven 3.2.1: previous tests are sufficient
+//assert content.contains( 'LifecycleParticipantDemoPlexus afterSessionEnd' );
+
+assert !content.contains( 'LifecycleParticipantDemoJsr330 afterSessionStart' ); // not yet activated when POM extension
+assert content.contains( 'LifecycleParticipantDemoJsr330 afterProjectsRead' );
+// do not test since valid only since Maven 3.2.1: previous tests are sufficient
+//assert content.contains( 'LifecycleParticipantDemoJsr330 afterSessionEnd' );
 
 // EventSpy not activated when POM extension
-assert !content.contains( 'EventSpyDemo init:');
-assert !content.contains( 'EventSpyDemo close');
-
-assert !content.contains( 'LifecycleParticipantDemo afterSessionStart'); // not yet activated when POM extension
-assert content.contains( 'LifecycleParticipantDemo afterProjectsRead');
-assert content.contains( 'LifecycleParticipantDemo afterSessionEnd');
+assert !content.contains( 'EventSpyDemo init:' );
+assert !content.contains( 'EventSpyDemo close' );
 
 return true;

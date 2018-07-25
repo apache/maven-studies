@@ -29,22 +29,24 @@ import org.apache.maven.execution.MavenSession;
 /**
  * Lifecycle Participant demo (feature added in Maven 3.0-alpha-3 with
  * <a href="https://issues.apache.org/jira/browse/MNG-4224">MNG-4224</a>).
+ * defined with <a href="/maven-jsr330.html">JSR-330 javax.inject annotations</a>.
+ * Notice: such JSR-330 annotations do not work on Maven 3.0.x, but only starting with 3.1
  */
-@Named( "demo" )
+@Named( "demo-jsr330" )
 @Singleton
-public class LifecycleParticipantDemo
+public class LifecycleParticipantDemoJsr330
     extends AbstractMavenLifecycleParticipant
 {
     public void afterProjectsRead( MavenSession session )
         throws MavenExecutionException
     {
-        System.err.println( "LifecycleParticipantDemo afterProjectsRead" );
+        System.err.println( "LifecycleParticipantDemoJsr330 afterProjectsRead" );
     }
 
     public void afterSessionStart( MavenSession session )
         throws MavenExecutionException
     {
-        System.err.println( "LifecycleParticipantDemo afterSessionStart" );
+        System.err.println( "LifecycleParticipantDemoJsr330 afterSessionStart" );
     }
 
     /*
@@ -53,6 +55,6 @@ public class LifecycleParticipantDemo
    public void afterSessionEnd( MavenSession session )
        throws MavenExecutionException
    {
-       System.err.println( "LifecycleParticipantDemo afterSessionEnd" );
+       System.err.println( "LifecycleParticipantDemoJsr330 afterSessionEnd" );
    }
 }

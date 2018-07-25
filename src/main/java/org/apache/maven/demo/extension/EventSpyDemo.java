@@ -32,7 +32,8 @@ import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
 /**
  * Event Spy demo (since Maven 3.0.2, with <a href="https://issues.apache.org/jira/browse/MNG-4936">MNG-4936</a>).
- * Notice: event spies are not activated from POM build extensions.
+ * <p>Notice: event spies are not activated from POM build extensions.
+ * <p>Notice: JSR-330 annotations do not work on Maven 3.0.x, but only starting with 3.1
  */
 @Named( "demo" )
 @Singleton
