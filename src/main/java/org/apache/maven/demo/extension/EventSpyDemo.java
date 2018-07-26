@@ -22,21 +22,20 @@ package org.apache.maven.demo.extension;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
-
 import org.apache.maven.eventspy.AbstractEventSpy;
+import org.apache.maven.eventspy.EventSpy;
 import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.codehaus.plexus.component.annotations.Component;
 
 /**
  * Event Spy demo (since Maven 3.0.2, with <a href="https://issues.apache.org/jira/browse/MNG-4936">MNG-4936</a>).
  * <p>Notice: event spies are not activated from POM build extensions.
- * <p>Notice: JSR-330 annotations do not work on Maven 3.0.x, but only starting with 3.1
  */
-@Named( "demo" )
-@Singleton
+//@Named( "demo" )
+//@Singleton
+@Component( role = EventSpy.class, hint = "demo" ) // using Plexus Component annotations for Maven 3.0.x
 public class EventSpyDemo
     extends AbstractEventSpy
 {

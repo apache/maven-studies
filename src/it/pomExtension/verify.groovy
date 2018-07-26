@@ -20,15 +20,30 @@ assert new File( basedir, 'build.log' ).exists();
 
 content = new File( basedir, 'build.log' ).text;
 
+boolean maven30 = content.contains( 'Apache Maven 3.0.' );
+boolean maven31 = content.contains( 'Apache Maven 3.1.' );
+
 assert !content.contains( 'LifecycleParticipantDemoPlexus afterSessionStart' ); // not yet activated when POM extension
 assert content.contains( 'LifecycleParticipantDemoPlexus afterProjectsRead' );
-// do not test since valid only since Maven 3.2.1: previous tests are sufficient
-//assert content.contains( 'LifecycleParticipantDemoPlexus afterSessionEnd' );
+if ( maven30 || maven31 ) {
+  // afterSessionEnd API available only since Maven 3.2.1
+  assert !content.contains( 'LifecycleParticipantDemoPlexus afterSessionEnd' );
+} else { 
+  assert content.contains( 'LifecycleParticipantDemoPlexus afterSessionEnd' );
+}
 
-assert !content.contains( 'LifecycleParticipantDemoJsr330 afterSessionStart' ); // not yet activated when POM extension
-assert content.contains( 'LifecycleParticipantDemoJsr330 afterProjectsRead' );
-// do not test since valid only since Maven 3.2.1: previous tests are sufficient
-//assert content.contains( 'LifecycleParticipantDemoJsr330 afterSessionEnd' );
+if ( maven30 ) {
+  assert !content.contains( 'LifecycleParticipantDemoJsr330 after' );
+} else {
+  assert !content.contains( 'LifecycleParticipantDemoJsr330 afterSessionStart' ); // not yet activated when POM extension
+  assert content.contains( 'LifecycleParticipantDemoJsr330 afterProjectsRead' );
+  if ( maven31 ) {
+    // afterSessionEnd API available only since Maven 3.2.1
+    assert !content.contains( 'LifecycleParticipantDemoJsr330 afterSessionEnd' );
+  } else { 
+    assert content.contains( 'LifecycleParticipantDemoJsr330 afterSessionEnd' );
+  }
+}
 
 // EventSpy not activated when POM extension
 assert !content.contains( 'EventSpyDemo init:' );
