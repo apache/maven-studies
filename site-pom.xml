@@ -79,7 +79,17 @@ under the License.
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-scm-publish-plugin</artifactId>
           <version>3.0.0</version>
-          <dependencies><!-- TODO remove this overridden dependency when upgrading to 3.1.0, see MSCMPUB-37 -->
+          <dependencies><!-- TODO remove these overridden dependencies when upgrading to 3.1.0, see MSCMPUB-37 -->
+            <dependency>
+              <groupId>org.apache.maven.scm</groupId>
+              <artifactId>maven-scm-api</artifactId>
+              <version>1.10.0</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.maven.scm</groupId>
+              <artifactId>maven-scm-provider-svn-commons</artifactId>
+              <version>1.10.0</version>
+            </dependency>
             <dependency>
               <groupId>org.apache.maven.scm</groupId>
               <artifactId>maven-scm-provider-svnexe</artifactId>
@@ -95,6 +105,7 @@ under the License.
         <artifactId>maven-site-plugin</artifactId>
         <configuration>
           <siteDirectory>${basedir}/src/site-docs</siteDirectory>
+          <skipDeploy>true</skipDeploy><!-- don't deploy site with maven-site-plugin -->
         </configuration>
       </plugin>
       <plugin>
@@ -105,6 +116,15 @@ under the License.
           <checkoutDirectory>${maven.site.cache}/${maven.site.path}</checkoutDirectory>
           <tryUpdate>true</tryUpdate>
         </configuration>
+        <executions>
+          <execution>
+            <id>scm-publish</id>
+            <phase>site-deploy</phase><!-- deploy site with maven-scm-publish-plugin -->
+            <goals>
+              <goal>publish-scm</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
