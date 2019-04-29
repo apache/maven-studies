@@ -50,7 +50,7 @@ Maven Extension Demo Study
   [[3]] use <<<-Dmaven.ext.class.path=[path to files]>>> (since Maven 3.0.2,
     see {{{https://issues.apache.org/jira/browse/MNG-4936}MNG-4936}}),
 
-  [[4]] configure in {{{/ref/current/maven-embedder/core-extensions.html}<<<mvn/extensions.xml>>>}} (since Maven 3.3.1)
+  [[4]] configure in {{{/ref/current/maven-embedder/core-extensions.html}<<<.mvn/extensions.xml>>>}} (since Maven 3.3.1)
 
   []
 
