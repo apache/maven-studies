@@ -62,7 +62,7 @@ Maven Extension Demo Study
   <<<-Dmaven.ext.class.path=[path to files]>>> is a little bit more flexible, but remains not configured into
   the build, which is not suitable to ensure an extension is available at build time.
 
-  <<<mvn/extensions.xml>>> is the ultimate solution for these use cases. Its only drawback is that it has been
+  <<<.mvn/extensions.xml>>> is the ultimate solution for these use cases. Its only drawback is that it has been
   added only in Maven 3.3.1.
 
 
