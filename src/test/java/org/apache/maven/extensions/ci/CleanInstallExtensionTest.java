@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -103,7 +104,7 @@ class CleanInstallExtensionTest
 
         assertTrue( Files.exists( ciLog ) );
         
-        verifyZeroInteractions( logger );
+        verify( logger ).info( "Registrating [clean, install]" );
     }
 
     @Test
@@ -144,7 +145,9 @@ class CleanInstallExtensionTest
         List<MavenProject> appList = Arrays.asList( app );
         
         when( session.getProjects() ).thenReturn( libList ).thenReturn( appList ).thenReturn( libList );
-        when( session.getGoals() ).thenReturn( Arrays.asList( "clean", "install" ) );
+        when( session.getGoals() ).thenReturn( Arrays.asList( "clean", "install" ) )
+                                  .thenReturn( Arrays.asList( "verify" ) )
+                                  .thenReturn( Arrays.asList( "clean", "install" ) );
         when( session.getStartTime() ).thenReturn( new Date() );
 
         extension.afterSessionEnd( session );
@@ -153,7 +156,7 @@ class CleanInstallExtensionTest
 
         assertTrue( Files.exists( ciLog ) );
         
-        verifyZeroInteractions( logger );
+        verify( logger, times( 2 ) ).info( "Registrating [clean, install]" );
     }
 
     private MavenProject newMavenProject( String groupId, String artifactId, String version )

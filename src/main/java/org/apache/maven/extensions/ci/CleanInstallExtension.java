@@ -151,6 +151,10 @@ public class CleanInstallExtension extends AbstractMavenLifecycleParticipant imp
                         + "but you're learning. Well done!" ) );
                 }
             }
+            else if ( session.getGoals().contains( "install" ) ) 
+            {
+                logger.info( "Registrating " + session.getGoals() );
+            }
 
             List<Data> newLines = groupedLines.getOrDefault( State.NONE, new ArrayList<>( 1 ) );
             if ( session.getGoals().contains( "install" ) )
@@ -163,6 +167,7 @@ public class CleanInstallExtension extends AbstractMavenLifecycleParticipant imp
                 newLines.add( data );
             }
             
+
             if ( !( newLines.isEmpty() && originalLines.isEmpty() ) )
             {
                 if ( !Files.exists( ciLog ) )
