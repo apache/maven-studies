@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -131,18 +132,28 @@ public class CleanInstallExtension extends AbstractMavenLifecycleParticipant imp
             Map<State, List<Data>> groupedLines = originalLines.stream()
                 .collect( Collectors.groupingBy( state ) );
             
+            AtomicInteger counter = new AtomicInteger();
+            
             List<Data> disjoint = groupedLines.get( State.PROJECTKEY );
             if ( !Optional.ofNullable( disjoint ).map( List::isEmpty ).orElse( true ) )
             {
-                
                 if ( session.getGoals().contains( "install" ) )
                 {
                     disjoint.stream().forEach( d -> 
                     {
                         logger.warn( "Previous 'install' on this project was unnecessary "
-                            + "and polluted your local repository" );
+                                        + "and polluted your local repository" );
                         logger.warn( "A good Maven citizen uses 'verify' instead" );
+                        
+                        counter.set( d.counter );
                     } );
+
+                    if ( counter.get() > 2 )
+                    {
+                        logger.warn( "I warned you...." );
+                        throw new MavenExecutionException( "Stubborn developer spotted",
+                                                           session.getTopLevelProject().getFile() );
+                    }
                 }
                 else
                 {
@@ -164,9 +175,9 @@ public class CleanInstallExtension extends AbstractMavenLifecycleParticipant imp
                 data.executionRootDirectory = session.getExecutionRootDirectory();
                 data.goals = session.getGoals();
                 data.projectKeys = projectKeys;
+                data.counter = counter.incrementAndGet();
                 newLines.add( data );
             }
-            
 
             if ( !( newLines.isEmpty() && originalLines.isEmpty() ) )
             {
@@ -199,8 +210,12 @@ public class CleanInstallExtension extends AbstractMavenLifecycleParticipant imp
        PROJECTKEY, DEPENDENCYKEY, NONE    
     }
     
-    private static class Data implements Serializable 
+    private static class Data implements Serializable
     {
+        private static final long serialVersionUID = -6588609095599417153L;
+
+        private int counter;
+        
         private String executionRootDirectory;
         
         private List<String> goals;
