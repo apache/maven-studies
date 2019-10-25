@@ -1,7 +1,5 @@
 package org.apache.maven.extensions.eventsound;
 
-import java.io.File;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -34,12 +32,14 @@ import javax.inject.Singleton;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineEvent.Type;
+import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.maven.eventspy.AbstractEventSpy;
 import org.apache.maven.execution.ExecutionEvent;
-import org.apache.maven.execution.ExecutionEvent.Type;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
 
@@ -88,7 +88,7 @@ public class SoundPlayingListener extends AbstractEventSpy implements LogEnabled
         {
             ExecutionEvent executionEvent = (ExecutionEvent) event;
             
-            if ( executionEvent.getType() == Type.SessionEnded )
+            if ( executionEvent.getType() == ExecutionEvent.Type.SessionEnded )
             {
                 
                 String key;
@@ -104,7 +104,7 @@ public class SoundPlayingListener extends AbstractEventSpy implements LogEnabled
                 String value = properties.getProperty( key );
                 if ( value != null )
                 {
-                    Path mediafile = config.getParent().resolve( "eventsound" ).resolve( value );
+                    Path mediafile = config.getParent().resolve( value );
                     
                     Thread t = new Thread( new Player( mediafile ) );
                     t.run();
@@ -125,42 +125,55 @@ public class SoundPlayingListener extends AbstractEventSpy implements LogEnabled
 
         public void run()
         {
-            try (Clip clip = AudioSystem.getClip();
-                            AudioInputStream ais = AudioSystem.getAudioInputStream( mediafile.toFile() ) )
+            final AudioListener listener = new AudioListener();
+            try ( Clip clip = AudioSystem.getClip();
+                  AudioInputStream ais = AudioSystem.getAudioInputStream( mediafile.toFile() ) )
             {
+                clip.addLineListener( listener );
                 clip.open( ais );
                 clip.start();
 
-                // AudioSystem uses a separate Thread.
-                // If the active thread is closed, you might hear just a fragment or nothing at all
-
-                // Warmup Time
-                while ( !clip.isRunning() )
-                {
-                    try
-                    {
-                        Thread.sleep( 10 );
-                    }
-                    catch ( InterruptedException e )
-                    {
-                    }
-                }
-
-                // Running time
-                while ( clip.isRunning() )
-                {
-                    try
-                    {
-                        Thread.sleep( 10 );
-                    }
-                    catch ( InterruptedException e )
-                    {
-                    }
-                }
+                listener.waitUntilDone();
             }
             catch ( IOException | UnsupportedAudioFileException | LineUnavailableException e )
             {
                 e.printStackTrace();
+            }
+            catch ( InterruptedException e )
+            {
+                // noop
+            }
+        }
+    }
+    
+    /**
+     * Ensure files is being played until the end
+     * 
+     * @author Robert Scholte
+     * @since 1.0.0
+     */
+    static class AudioListener
+        implements LineListener
+    {
+        private boolean done = false;
+
+        @Override
+        public synchronized void update( LineEvent event )
+        {
+            Type eventType = event.getType();
+            if ( eventType == Type.STOP || eventType == Type.CLOSE )
+            {
+                done = true;
+                notifyAll();
+            }
+        }
+
+        public synchronized void waitUntilDone()
+            throws InterruptedException
+        {
+            while ( !done )
+            {
+                wait();
             }
         }
     }
