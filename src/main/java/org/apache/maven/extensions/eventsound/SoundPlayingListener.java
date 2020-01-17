@@ -88,6 +88,12 @@ public class SoundPlayingListener extends AbstractEventSpy implements LogEnabled
         {
             ExecutionEvent executionEvent = (ExecutionEvent) event;
             
+            if ( !executionEvent.getSession().getRequest().isInteractiveMode() )
+            {
+                // prevents activity when using maven-invoker-plugin during ITs 
+                return;
+            }
+            
             if ( executionEvent.getType() == ExecutionEvent.Type.SessionEnded )
             {
                 
