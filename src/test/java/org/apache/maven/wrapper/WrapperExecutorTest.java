@@ -29,7 +29,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -170,16 +169,14 @@ public class WrapperExecutorTest {
     Assert.assertTrue(wrapper.getDistribution().getSchemeSpecificPart().endsWith("some/relative/url/to/bin.zip"));
   }
 
-  private void writePropertiesFile(Properties properties, File propertiesFile, String message) throws Exception {
+    private void writePropertiesFile( Properties properties, File propertiesFile, String message )
+        throws Exception
+    {
+        propertiesFile.getParentFile().mkdirs();
 
-    propertiesFile.getParentFile().mkdirs();
-
-    OutputStream outStream = null;
-    try {
-      outStream = new FileOutputStream(propertiesFile);
-      properties.store(outStream, message);
-    } finally {
-      IOUtils.closeQuietly(outStream);
+        try ( OutputStream outStream = new FileOutputStream( propertiesFile ) )
+        {
+            properties.store( outStream, message );
+        }
     }
-  }
 }

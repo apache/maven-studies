@@ -151,13 +151,15 @@ public class Installer
             else
             {
                 BufferedReader is = new BufferedReader( new InputStreamReader( p.getInputStream() ) );
-                Formatter stdout = new Formatter();
-                String line;
-                while ( ( line = is.readLine() ) != null )
+                try ( Formatter stdout = new Formatter() )
                 {
-                    stdout.format( "%s%n", line );
+                    String line;
+                    while ( ( line = is.readLine() ) != null )
+                    {
+                        stdout.format( "%s%n", line );
+                    }
+                    errorMessage = stdout.toString();
                 }
-                errorMessage = stdout.toString();
             }
         }
         catch ( IOException e )
@@ -207,43 +209,42 @@ public class Installer
     public void unzip( File zip, File dest )
         throws IOException
     {
-        Enumeration entries;
-        ZipFile zipFile;
-
-        zipFile = new ZipFile( zip );
-
-        entries = zipFile.entries();
-
-        while ( entries.hasMoreElements() )
+        
+        try ( ZipFile zipFile = new ZipFile( zip ) )
         {
-            ZipEntry entry = (ZipEntry) entries.nextElement();
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
-            if ( entry.isDirectory() )
+            while ( entries.hasMoreElements() )
             {
-                ( new File( dest, entry.getName() ) ).mkdirs();
-                continue;
-            }
+                ZipEntry entry = entries.nextElement();
 
-            new File( dest, entry.getName() ).getParentFile().mkdirs();
-            copyInputStream( zipFile.getInputStream( entry ),
-                             new BufferedOutputStream( new FileOutputStream( new File( dest, entry.getName() ) ) ) );
+                if ( entry.isDirectory() )
+                {
+                    ( new File( dest, entry.getName() ) ).mkdirs();
+                    continue;
+                }
+
+                new File( dest, entry.getName() ).getParentFile().mkdirs();
+                copyInputStream( zipFile.getInputStream( entry ),
+                                new BufferedOutputStream( new FileOutputStream( new File( dest, entry.getName() ) ) ) );
+            }
         }
-        zipFile.close();
     }
 
     public void copyInputStream( InputStream in, OutputStream out )
         throws IOException
     {
-        byte[] buffer = new byte[1024];
-        int len;
-
-        while ( ( len = in.read( buffer ) ) >= 0 )
+        try ( InputStream is = in;
+              OutputStream os = out ) 
         {
-            out.write( buffer, 0, len );
-        }
+            byte[] buffer = new byte[1024];
+            int len;
 
-        in.close();
-        out.close();
+            while ( ( len = is.read( buffer ) ) >= 0 )
+            {
+                os.write( buffer, 0, len );
+            }            
+        }
     }
 
 }

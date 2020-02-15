@@ -41,18 +41,11 @@ public class SystemPropertiesHandler
         {
             return propertyMap;
         }
+
         Properties properties = new Properties();
-        try
+        try ( FileInputStream inStream = new FileInputStream( propertiesFile ) )
         {
-            FileInputStream inStream = new FileInputStream( propertiesFile );
-            try
-            {
-                properties.load( inStream );
-            }
-            finally
-            {
-                inStream.close();
-            }
+            properties.load( inStream );
         }
         catch ( IOException e )
         {

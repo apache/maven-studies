@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,12 +48,9 @@ public class SystemPropertiesHandlerTest {
     props.put("systemProp.c", "d");
     props.put("systemProp.", "e");
 
-    FileOutputStream fos = null;
-    try {
-      fos = new FileOutputStream(propFile);
-      props.store(fos, "");
-    } finally {
-      IOUtils.closeQuietly(fos);
+    try ( FileOutputStream fos = new FileOutputStream( propFile ) )
+    {
+        props.store(fos, "");
     }
 
     Map<String, String> expected = new HashMap<String, String>();

@@ -24,29 +24,27 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.file.Files;
+import java.util.Arrays;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Zip;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * @author Hans Dockter
  */
 public class InstallerTest {
-  private File testDir = new File("target/test-files/SystemPropertiesHandlerTest-" + System.currentTimeMillis());
+    
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    
 
   private Installer install;
-
-  private Downloader downloadMock;
-
-  private PathAssembler pathAssemblerMock;
-
-  private boolean downloadCalled;
-
-  private File zip;
 
   private File distributionDir;
 
@@ -66,10 +64,6 @@ public class InstallerTest {
 
   @Before
   public void setup() throws Exception {
-
-    testDir.mkdirs();
-
-    downloadCalled = false;
     configuration.setZipBase(PathAssembler.PROJECT_STRING);
     configuration.setZipPath("someZipPath");
     configuration.setDistributionBase(PathAssembler.MAVEN_USER_HOME_STRING);
@@ -77,9 +71,9 @@ public class InstallerTest {
     configuration.setDistribution(new URI("http://server/maven-0.9.zip"));
     configuration.setAlwaysDownload(false);
     configuration.setAlwaysUnpack(false);
-    distributionDir = new File(testDir, "someDistPath");
+    distributionDir = temporaryFolder.newFolder( "someDistPath" );
     mavenHomeDir = new File(distributionDir, "maven-0.9");
-    zipStore = new File(testDir, "zips");
+    zipStore = temporaryFolder.newFolder( "zips" );
     zipDestination = new File(zipStore, "maven-0.9.zip");
 
     download = mock(Downloader.class);
@@ -95,12 +89,12 @@ public class InstallerTest {
   }
 
   private void createTestZip(File zipDestination) throws Exception {
-    File explodedZipDir = new File(testDir, "explodedZip");
-    explodedZipDir.mkdirs();
+    File explodedZipDir = temporaryFolder.newFolder( "explodedZip");
+
     zipDestination.getParentFile().mkdirs();
     File mavenScript = new File(explodedZipDir, "maven-0.9/bin/mvn");
     mavenScript.getParentFile().mkdirs();
-    FileUtils.write(mavenScript, "something");
+    Files.write( mavenScript.toPath(), Arrays.asList( "something" ) );
 
     zipTo(explodedZipDir, zipDestination);
   }
@@ -123,11 +117,11 @@ public class InstallerTest {
 
   @Test
   public void testCreateDistWithExistingDistribution() throws Exception {
+      Files.createFile( zipDestination.toPath() );
 
-    FileUtils.touch(zipDestination);
     mavenHomeDir.mkdirs();
     File someFile = new File(mavenHomeDir, "some-file");
-    FileUtils.touch(someFile);
+    Files.createFile( someFile.toPath() );
 
     File homeDir = install.createDist(configuration);
 
@@ -147,7 +141,8 @@ public class InstallerTest {
     createTestZip(zipDestination);
     mavenHomeDir.mkdirs();
     File garbage = new File(mavenHomeDir, "garbage");
-    FileUtils.touch(garbage);
+    Files.createFile( garbage.toPath() );
+
     configuration.setAlwaysUnpack(true);
 
     File homeDir = install.createDist(configuration);
@@ -166,8 +161,10 @@ public class InstallerTest {
   public void testCreateDistWithExistingZipAndDistAndAlwaysDownloadTrue() throws Exception {
 
     createTestZip(zipDestination);
+    mavenHomeDir.mkdirs();
     File garbage = new File(mavenHomeDir, "garbage");
-    FileUtils.touch(garbage);
+    Files.createFile( garbage.toPath() );
+    
     configuration.setAlwaysUnpack(true);
 
     File homeDir = install.createDist(configuration);

@@ -122,17 +122,17 @@ public class MavenWrapperMain
 
     static String wrapperVersion()
     {
-        try
+        try 
         {
-            InputStream resourceAsStream =
-                MavenWrapperMain.class.getResourceAsStream( "/META-INF/maven/io.takari/maven-wrapper/pom.properties" );
+            try ( InputStream resourceAsStream =
+               MavenWrapperMain.class.getResourceAsStream( "/META-INF/maven/io.takari/maven-wrapper/pom.properties" ) )
+            {
+            
             if ( resourceAsStream == null )
             {
                 throw new RuntimeException( "No maven properties found." );
             }
-            Properties mavenProperties = new Properties();
-            try
-            {
+                Properties mavenProperties = new Properties();
                 mavenProperties.load( resourceAsStream );
                 String version = mavenProperties.getProperty( "version" );
                 if ( version == null )
@@ -140,10 +140,6 @@ public class MavenWrapperMain
                     throw new RuntimeException( "No version number specified in build receipt resource." );
                 }
                 return version;
-            }
-            finally
-            {
-                resourceAsStream.close();
             }
         }
         catch ( Exception e )
