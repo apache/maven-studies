@@ -34,6 +34,8 @@ import org.apache.maven.wrapper.cli.SystemPropertiesCommandLineConverter;
  */
 public class MavenWrapperMain
 {
+    private static final String POM_PROPERTIES = "/META-INF/maven/org.apache.maven/maven-wrapper/pom.properties";
+
     public static final String DEFAULT_MAVEN_USER_HOME = System.getProperty( "user.home" ) + "/.m2";
 
     public static final String MAVEN_USER_HOME_PROPERTY_KEY = "maven.user.home";
@@ -61,7 +63,7 @@ public class MavenWrapperMain
         File rootDir = rootDir( wrapperJar );
 
         String wrapperVersion = wrapperVersion();
-        Logger.info( "Takari Maven Wrapper " + wrapperVersion );
+        Logger.info( "Apache Maven Wrapper " + wrapperVersion );
 
         Properties systemProperties = System.getProperties();
         systemProperties.putAll( parseSystemPropertiesFromArgs( args ) );
@@ -125,7 +127,7 @@ public class MavenWrapperMain
         try 
         {
             try ( InputStream resourceAsStream =
-               MavenWrapperMain.class.getResourceAsStream( "/META-INF/maven/io.takari/maven-wrapper/pom.properties" ) )
+               MavenWrapperMain.class.getResourceAsStream( POM_PROPERTIES ) )
             {
             
             if ( resourceAsStream == null )
