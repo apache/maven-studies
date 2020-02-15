@@ -1,14 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>io.takari</groupId>
-    <artifactId>takari</artifactId>
-    <version>27</version>
+    <groupId>org.apache.maven</groupId>
+    <artifactId>maven-parent</artifactId>
+    <version>34</version>
   </parent>
-  
   <artifactId>maven-wrapper</artifactId>
-  <version>0.5.7-SNAPSHOT</version>
-  <packaging>provisio</packaging>
+  <version>1.0.0-SNAPSHOT</version>
+
   <name>Maven Wrapper</name>
   <licenses>
     <license>
@@ -18,7 +17,7 @@
     </license>
   </licenses>
   <properties>
-    <takari.javaSourceVersion>1.5</takari.javaSourceVersion>
+    <javaVersion>8</javaVersion>
   </properties>
   <dependencies>
     <dependency>
@@ -60,16 +59,4 @@
     </dependency>
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>io.takari.maven.plugins</groupId>
-        <artifactId>provisio-maven-plugin</artifactId>
-        <!--  careful - upgrade to 0.1.50 causes problem with extraction of tar.gz
-        instead of into .mvn/wrapper it looses the .mvn path and extracts to wrapper -->
-        <version>0.1.46</version>
-        <extensions>true</extensions>
-      </plugin>
-    </plugins>
-  </build>
 </project>
