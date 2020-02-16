@@ -19,15 +19,16 @@ package org.apache.maven.wrapper;
  * under the License.
  */
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Formatter;
@@ -54,7 +55,7 @@ public class Installer
         this.pathAssembler = pathAssembler;
     }
 
-    public File createDist( WrapperConfiguration configuration )
+    public Path createDist( WrapperConfiguration configuration )
         throws Exception
     {
         URI distributionUrl;
@@ -74,31 +75,30 @@ public class Installer
 
         PathAssembler.LocalDistribution localDistribution = pathAssembler.getDistribution( configuration );
 
-        File localZipFile = localDistribution.getZipFile();
+        Path localZipFile = localDistribution.getZipFile();
         boolean downloaded = false;
-        if ( alwaysDownload || !localZipFile.exists() )
+        if ( alwaysDownload || !Files.exists( localZipFile ) )
         {
-            File tmpZipFile = new File( localZipFile.getParentFile(), localZipFile.getName() + ".part" );
-            tmpZipFile.delete();
+            Path tmpZipFile = localZipFile.resolveSibling( localZipFile.getFileName() + ".part" );
+            Files.delete( tmpZipFile );
             Logger.info( "Downloading " + distributionUrl );
             download.download( distributionUrl, tmpZipFile );
-            tmpZipFile.renameTo( localZipFile );
+            Files.move( tmpZipFile, localZipFile );
             downloaded = true;
         }
 
-        File distDir = localDistribution.getDistributionDir();
-        List<File> dirs = listDirs( distDir );
+        Path distDir = localDistribution.getDistributionDir();
+        List<File> dirs = listDirs( distDir.toFile() );
 
         if ( downloaded || alwaysUnpack || dirs.isEmpty() )
         {
-            for ( File dir : dirs )
-            {
-                Logger.info( "Deleting directory " + dir.getAbsolutePath() );
-                deleteDir( dir );
-            }
-            Logger.info( "Unzipping " + localZipFile.getAbsolutePath() + " to " + distDir.getAbsolutePath() );
+            Logger.info( "Deleting directory " + distDir.toAbsolutePath() );
+            deleteDir( distDir );
+            
+            Logger.info( "Unzipping " + localZipFile.toAbsolutePath() + " to " + distDir.toAbsolutePath() );
             unzip( localZipFile, distDir );
-            dirs = listDirs( distDir );
+            
+            dirs = listDirs( distDir.toFile() );
             if ( dirs.isEmpty() )
             {
                 throw new RuntimeException( String.format( 
@@ -113,7 +113,7 @@ public class Installer
                    "Maven distribution '%s' contains too many directories. Expected to find exactly 1 directory.",
                    distributionUrl ) );
         }
-        return dirs.get( 0 );
+        return dirs.get( 0 ).toPath();
     }
 
     private List<File> listDirs( File distDir )
@@ -162,11 +162,7 @@ public class Installer
                 }
             }
         }
-        catch ( IOException e )
-        {
-            errorMessage = e.getMessage();
-        }
-        catch ( InterruptedException e )
+        catch ( IOException | InterruptedException e )
         {
             errorMessage = e.getMessage();
         }
@@ -187,30 +183,32 @@ public class Installer
         return false;
     }
 
-    private boolean deleteDir( File dir )
+    private Path deleteDir( Path dir ) throws IOException
     {
-        if ( dir.isDirectory() )
+        return Files.walkFileTree( dir, new SimpleFileVisitor<Path>()
         {
-            String[] children = dir.list();
-            for ( int i = 0; i < children.length; i++ )
+            @Override
+            public FileVisitResult postVisitDirectory( Path dir, IOException exc )
+                throws IOException
             {
-                boolean success = deleteDir( new File( dir, children[i] ) );
-                if ( !success )
-                {
-                    return false;
-                }
+                Files.delete( dir );
+                return FileVisitResult.CONTINUE;
             }
-        }
 
-        // The directory is now empty so delete it
-        return dir.delete();
+            @Override
+            public FileVisitResult visitFile( Path file, BasicFileAttributes attrs )
+                throws IOException
+            {
+                Files.delete( file );
+                return FileVisitResult.CONTINUE;
+            }
+        } );
     }
 
-    public void unzip( File zip, File dest )
+    private void unzip( Path zip, Path dest )
         throws IOException
     {
-        
-        try ( ZipFile zipFile = new ZipFile( zip ) )
+        try ( ZipFile zipFile = new ZipFile( zip.toFile() ) )
         {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
@@ -220,31 +218,15 @@ public class Installer
 
                 if ( entry.isDirectory() )
                 {
-                    ( new File( dest, entry.getName() ) ).mkdirs();
+                    Files.createDirectories( dest.resolve( entry.getName() ) );
                     continue;
                 }
 
-                new File( dest, entry.getName() ).getParentFile().mkdirs();
-                copyInputStream( zipFile.getInputStream( entry ),
-                                new BufferedOutputStream( new FileOutputStream( new File( dest, entry.getName() ) ) ) );
+                Path targetFile = dest.resolve( entry.getName() );
+                Files.createDirectories( targetFile.getParent() );
+
+                Files.copy( zipFile.getInputStream( entry ), targetFile );
             }
         }
     }
-
-    public void copyInputStream( InputStream in, OutputStream out )
-        throws IOException
-    {
-        try ( InputStream is = in;
-              OutputStream os = out ) 
-        {
-            byte[] buffer = new byte[1024];
-            int len;
-
-            while ( ( len = is.read( buffer ) ) >= 0 )
-            {
-                os.write( buffer, 0, len );
-            }            
-        }
-    }
-
 }

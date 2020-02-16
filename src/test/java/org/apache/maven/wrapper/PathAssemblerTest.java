@@ -20,8 +20,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.regex.Pattern;
 
 import org.hamcrest.BaseMatcher;
@@ -36,7 +37,7 @@ import org.junit.Test;
 public class PathAssemblerTest {
   public static final String TEST_MAVEN_USER_HOME = "someUserHome";
 
-  private PathAssembler pathAssembler = new PathAssembler(new File(TEST_MAVEN_USER_HOME));
+  private PathAssembler pathAssembler = new PathAssembler( Paths.get( TEST_MAVEN_USER_HOME ) );
 
   final WrapperConfiguration configuration = new WrapperConfiguration();
 
@@ -52,9 +53,9 @@ public class PathAssemblerTest {
   public void distributionDirWithMavenUserHomeBase() throws Exception {
     configuration.setDistribution(new URI("http://server/dist/maven-0.9-bin.zip"));
 
-    File distributionDir = pathAssembler.getDistribution(configuration).getDistributionDir();
-    assertThat(distributionDir.getName(), matchesRegexp("[a-z0-9]+"));
-    assertThat(distributionDir.getParentFile(), equalTo(file(TEST_MAVEN_USER_HOME + "/somePath/maven-0.9-bin")));
+    Path distributionDir = pathAssembler.getDistribution(configuration).getDistributionDir();
+    assertThat(distributionDir.getFileName().toString(), matchesRegexp("[a-z0-9]+"));
+    assertThat(distributionDir.getParent(), equalTo(Paths.get(TEST_MAVEN_USER_HOME, "/somePath/maven-0.9-bin")));
   }
 
   @Test
@@ -62,9 +63,9 @@ public class PathAssemblerTest {
     configuration.setDistributionBase(PathAssembler.PROJECT_STRING);
     configuration.setDistribution(new URI("http://server/dist/maven-0.9-bin.zip"));
 
-    File distributionDir = pathAssembler.getDistribution(configuration).getDistributionDir();
-    assertThat(distributionDir.getName(), matchesRegexp("[a-z0-9]+"));
-    assertThat(distributionDir.getParentFile(), equalTo(file(currentDirPath() + "/somePath/maven-0.9-bin")));
+    Path distributionDir = pathAssembler.getDistribution(configuration).getDistributionDir();
+    assertThat(distributionDir.getFileName().toString(), matchesRegexp("[a-z0-9]+"));
+    assertThat(distributionDir.getParent(), equalTo(Paths.get(currentDirPath(), "/somePath/maven-0.9-bin")));
   }
 
   @Test
@@ -84,10 +85,10 @@ public class PathAssemblerTest {
   public void distZipWithMavenUserHomeBase() throws Exception {
     configuration.setDistribution(new URI("http://server/dist/maven-1.0.zip"));
 
-    File dist = pathAssembler.getDistribution(configuration).getZipFile();
-    assertThat(dist.getName(), equalTo("maven-1.0.zip"));
-    assertThat(dist.getParentFile().getName(), matchesRegexp("[a-z0-9]+"));
-    assertThat(dist.getParentFile().getParentFile(), equalTo(file(TEST_MAVEN_USER_HOME + "/somePath/maven-1.0")));
+    Path dist = pathAssembler.getDistribution(configuration).getZipFile();
+    assertThat(dist.getFileName().toString(), equalTo("maven-1.0.zip"));
+    assertThat(dist.getParent().getFileName().toString(), matchesRegexp("[a-z0-9]+"));
+    assertThat(dist.getParent().getParent(), equalTo(Paths.get(TEST_MAVEN_USER_HOME, "/somePath/maven-1.0")));
   }
 
   @Test
@@ -95,14 +96,10 @@ public class PathAssemblerTest {
     configuration.setZipBase(PathAssembler.PROJECT_STRING);
     configuration.setDistribution(new URI("http://server/dist/maven-1.0.zip"));
 
-    File dist = pathAssembler.getDistribution(configuration).getZipFile();
-    assertThat(dist.getName(), equalTo("maven-1.0.zip"));
-    assertThat(dist.getParentFile().getName(), matchesRegexp("[a-z0-9]+"));
-    assertThat(dist.getParentFile().getParentFile(), equalTo(file(currentDirPath() + "/somePath/maven-1.0")));
-  }
-
-  private File file(String path) {
-    return new File(path);
+    Path dist = pathAssembler.getDistribution(configuration).getZipFile();
+    assertThat(dist.getFileName().toString(), equalTo("maven-1.0.zip"));
+    assertThat(dist.getParent().getFileName().toString(), matchesRegexp("[a-z0-9]+"));
+    assertThat(dist.getParent().getParent(), equalTo(Paths.get(currentDirPath(), "/somePath/maven-1.0")));
   }
 
   private String currentDirPath() {

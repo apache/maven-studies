@@ -1,6 +1,4 @@
-package org.apache.maven.wrapper;
-
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -19,14 +17,4 @@ package org.apache.maven.wrapper;
  * under the License.
  */
 
-import java.net.URI;
-import java.nio.file.Path;
-
-/**
- * @author Hans Dockter
- */
-public interface Downloader
-{
-    void download( URI address, Path destination )
-        throws Exception;
-}
+asfMavenTlpStdBuild()

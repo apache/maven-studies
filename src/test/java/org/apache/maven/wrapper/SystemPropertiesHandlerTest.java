@@ -22,46 +22,49 @@ package org.apache.maven.wrapper;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
-public class SystemPropertiesHandlerTest {
+public class SystemPropertiesHandlerTest
+{
 
-  private File tmpDir = new File("target/test-files/SystemPropertiesHandlerTest");
+    @Rule
+    public TemporaryFolder tmpDir = new TemporaryFolder();
 
-  @Before
-  public void setupTempDir() {
-    tmpDir.mkdirs();
-  }
-
-  @Test
-  public void testParsePropertiesFile() throws Exception {
-    File propFile = new File(tmpDir, "props");
-    Properties props = new Properties();
-    props.put("a", "b");
-    props.put("systemProp.c", "d");
-    props.put("systemProp.", "e");
-
-    try ( FileOutputStream fos = new FileOutputStream( propFile ) )
+    @Test
+    public void testParsePropertiesFile()
+        throws Exception
     {
-        props.store(fos, "");
+        Path propFile = tmpDir.newFile( "props" ).toPath();
+        Properties props = new Properties();
+        props.put( "a", "b" );
+        props.put( "systemProp.c", "d" );
+        props.put( "systemProp.", "e" );
+
+        try (OutputStream fos = Files.newOutputStream( propFile ))
+        {
+            props.store( fos, "" );
+        }
+
+        Map<String, String> expected = new HashMap<String, String>();
+        expected.put( "c", "d" );
+
+        assertThat( SystemPropertiesHandler.getSystemProperties( propFile ), equalTo( expected ) );
     }
 
-    Map<String, String> expected = new HashMap<String, String>();
-    expected.put("c", "d");
-
-    assertThat(SystemPropertiesHandler.getSystemProperties(propFile), equalTo(expected));
-  }
-
-  @Test
-  public void ifNoPropertyFileExistShouldReturnEmptyMap() {
-    Map<String, String> expected = new HashMap<String, String>();
-    assertThat(SystemPropertiesHandler.getSystemProperties(new File(tmpDir, "unknown")), equalTo(expected));
-  }
+    @Test
+    public void ifNoPropertyFileExistShouldReturnEmptyMap()
+    {
+        Map<String, String> expected = new HashMap<String, String>();
+        assertThat( SystemPropertiesHandler.getSystemProperties( tmpDir.getRoot().toPath().resolve( "unknown" ) ),
+                    equalTo( expected ) );
+    }
 }

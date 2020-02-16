@@ -19,9 +19,10 @@ package org.apache.maven.wrapper;
  * under the License.
  */
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -34,16 +35,16 @@ import java.util.regex.Pattern;
 public class SystemPropertiesHandler
 {
 
-    public static Map<String, String> getSystemProperties( File propertiesFile )
+    public static Map<String, String> getSystemProperties( Path propertiesFile )
     {
         Map<String, String> propertyMap = new HashMap<String, String>();
-        if ( !propertiesFile.isFile() )
+        if ( !Files.isRegularFile( propertiesFile ) )
         {
             return propertyMap;
         }
 
         Properties properties = new Properties();
-        try ( FileInputStream inStream = new FileInputStream( propertiesFile ) )
+        try ( InputStream inStream = Files.newInputStream( propertiesFile ) )
         {
             properties.load( inStream );
         }

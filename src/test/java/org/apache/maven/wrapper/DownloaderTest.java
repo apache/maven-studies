@@ -21,9 +21,9 @@ package org.apache.maven.wrapper;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -39,34 +39,34 @@ public class DownloaderTest
 
     private DefaultDownloader download;
 
-    private File downloadFile;
+    private Path downloadFile;
 
-    private File rootDir;
+    private Path rootDir;
 
     private URI sourceRoot;
 
-    private File remoteFile;
+    private Path remoteFile;
 
     @Before
     public void setUp()
         throws Exception
     {
         download = new DefaultDownloader( "mvnw", "aVersion" );
-        rootDir = testDir.newFolder( "root" );
-        downloadFile = new File( rootDir, "file" );
-        remoteFile = testDir.newFile( "remoteFile" );
-        Files.write( remoteFile.toPath(), Arrays.asList( "sometext" ) );
-        sourceRoot = remoteFile.toURI();
+        rootDir = testDir.newFolder( "root" ).toPath();
+        downloadFile = rootDir.resolve( "file" );
+        remoteFile = testDir.newFile( "remoteFile" ).toPath();
+        Files.write( remoteFile, Arrays.asList( "sometext" ) );
+        sourceRoot = remoteFile.toUri();
     }
 
     @Test
     public void testDownload()
         throws Exception
     {
-        assert !downloadFile.exists();
+        assert !Files.exists( downloadFile );
         download.download( sourceRoot, downloadFile );
-        assert downloadFile.exists();
+        assert Files.exists( downloadFile );
         assertEquals( "sometext",
-                      Files.readAllLines( downloadFile.toPath() ).stream().collect( Collectors.joining() ) );
+                      Files.readAllLines( downloadFile ).stream().collect( Collectors.joining() ) );
     }
 }
