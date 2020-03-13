@@ -41,7 +41,7 @@ public class BootstrapMainStarter
         Class<?> mainClass = contextClassLoader.loadClass( "org.codehaus.plexus.classworlds.launcher.Launcher" );
 
         System.setProperty( "maven.home", mavenHome.toAbsolutePath().toString() );
-        System.setProperty( "classworlds.conf", mavenHome.resolve( "/bin/m2.conf" ).toAbsolutePath().toString() );
+        System.setProperty( "classworlds.conf", mavenHome.resolve( "bin/m2.conf" ).toAbsolutePath().toString() );
 
         Method mainMethod = mainClass.getMethod( "main", String[].class );
         mainMethod.invoke( null, new Object[] { args } );

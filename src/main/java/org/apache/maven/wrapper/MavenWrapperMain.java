@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.AccessControlException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -66,10 +67,16 @@ public class MavenWrapperMain
         String wrapperVersion = wrapperVersion();
         Logger.info( "Apache Maven Wrapper " + wrapperVersion );
 
-        Properties systemProperties = System.getProperties();
-        systemProperties.putAll( parseSystemPropertiesFromArgs( args ) );
-
-        addSystemProperties( rootDir );
+        try 
+        {
+            Properties systemProperties = System.getProperties();
+            systemProperties.putAll( parseSystemPropertiesFromArgs( args ) );
+            addSystemProperties( rootDir );
+        }
+        catch ( AccessControlException e )
+        {
+            // no problem, just missing: permission java.util.PropertyPermission "*", "read,write";
+        }
 
         WrapperExecutor wrapperExecutor = WrapperExecutor.forWrapperPropertiesFile( propertiesFile, System.out );
         wrapperExecutor.execute( args, new Installer( new DefaultDownloader( "mvnw", wrapperVersion ),
@@ -107,21 +114,16 @@ public class MavenWrapperMain
 
     private static Path wrapperJar()
     {
-        URI location;
         try
         {
-            location = MavenWrapperMain.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+            URI location = MavenWrapperMain.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+
+            return Paths.get( location );
         }
         catch ( URISyntaxException e )
         {
             throw new RuntimeException( e );
         }
-        if ( !location.getScheme().equals( "file" ) )
-        {
-            throw new RuntimeException( String.format( "Cannot determine classpath for wrapper Jar from codebase '%s'.",
-                                                       location ) );
-        }
-        return Paths.get( location.getPath() );
     }
 
     static String wrapperVersion()
