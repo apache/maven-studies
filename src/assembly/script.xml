@@ -22,7 +22,7 @@ under the License.
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
-  <id>bin</id>
+  <id>script</id>
   <formats>
     <format>tar.gz</format>
     <format>zip</format>
@@ -42,11 +42,4 @@ under the License.
       <outputDirectory>.mvn/wrapper</outputDirectory>
     </fileSet>
   </fileSets>
-  <files>
-    <file>
-      <source>target/maven-wrapper.jar</source>
-      <outputDirectory>.mvn/wrapper</outputDirectory>
-      <destName>maven-wrapper.jar</destName> <!-- TODO include version -->
-    </file>
-  </files>
 </assembly>

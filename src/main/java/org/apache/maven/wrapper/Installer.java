@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
@@ -80,7 +81,7 @@ public class Installer
         if ( alwaysDownload || !Files.exists( localZipFile ) )
         {
             Path tmpZipFile = localZipFile.resolveSibling( localZipFile.getFileName() + ".part" );
-            Files.delete( tmpZipFile );
+            Files.deleteIfExists( tmpZipFile );
             Logger.info( "Downloading " + distributionUrl );
             download.download( distributionUrl, tmpZipFile );
             Files.move( tmpZipFile, localZipFile );
@@ -92,8 +93,30 @@ public class Installer
 
         if ( downloaded || alwaysUnpack || dirs.isEmpty() )
         {
-            Logger.info( "Deleting directory " + distDir.toAbsolutePath() );
-            deleteDir( distDir );
+            Files.walkFileTree( distDir.toAbsolutePath(), new SimpleFileVisitor<Path>()
+            {
+                @Override
+                public FileVisitResult postVisitDirectory( Path dir, IOException exc )
+                    throws IOException
+                {
+                    if ( dir.getParent().equals( distDir ) )
+                    {
+                        Logger.info( "Deleting directory " + distDir.toAbsolutePath() );
+                        Files.delete( dir );
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+                
+                public FileVisitResult visitFile( Path file, BasicFileAttributes attrs )
+                    throws IOException
+                {
+                    if ( !file.getParent().equals( distDir ) )
+                    {
+                        Files.delete( file );
+                    }
+                    return FileVisitResult.CONTINUE;
+                };
+            } );
             
             Logger.info( "Unzipping " + localZipFile.toAbsolutePath() + " to " + distDir.toAbsolutePath() );
             unzip( localZipFile, distDir );

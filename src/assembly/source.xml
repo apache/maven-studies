@@ -25,12 +25,14 @@ under the License.
   <id>source</id>
   <formats>
     <format>tar.gz</format>
+    <format>zip</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
       <directory>src/assembly/shared</directory>
       <outputDirectory>.</outputDirectory>
+      <filtered>true</filtered>
     </fileSet>
     <fileSet>
       <directory>src/assembly/source</directory>
