@@ -33,10 +33,14 @@ under the License.
       <directory>src/assembly/shared</directory>
       <outputDirectory>.</outputDirectory>
       <filtered>true</filtered>
+      <excludes>
+        <exclude>mvnw.cmd</exclude> <!-- source has it's own version -->
+      </excludes>
     </fileSet>
     <fileSet>
       <directory>src/assembly/source</directory>
-      <outputDirectory>.mvn/wrapper</outputDirectory>
+      <outputDirectory>.</outputDirectory>
+      <filtered>true</filtered>
     </fileSet>
   </fileSets>
 </assembly>
