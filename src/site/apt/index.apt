@@ -35,10 +35,41 @@ Maven Extension Demo Study
 
   []
 
-* Configuring Maven Extensions
+* Demo Content
+
+  {{{./xref/}Code provided here}} demoes one specific type of extension: {{{/examples/maven-3-lifecycle-extensions.html}Maven 3 lifecycle extension}}, and
+  the different results obtained when injecting this extension in the different ways available.
+
+  Maven lifecycle participation can be provided though 3 APIs:
+
+  [[1]] {{{/ref/current/maven-core/apidocs/index.html?org/apache/maven/execution/AbstractExecutionListener.html}<<<org.apache.maven.execution.AbstractExecutionListener>>>}},
+
+  [[2]] {{{/ref/current/maven-core/apidocs/index.html?org/apache/maven/AbstractMavenLifecycleParticipant.html}<<<org.apache.maven.AbstractMavenLifecycleParticipant>>>}},
+ 
+  [[3]] {{{/ref/current/maven-core/apidocs/index.html?org/apache/maven/eventspy/AbstractEventSpy.html}<<<org.apache.maven.eventspy.AbstractEventSpy>>>}}.
+
+  []
+
+  This study implements each API (see {{{./apidocs/}javadoc}}) then tests implementations in ITs that configure the extension in different ways:
+  verification done after IT execution check expected differences.
+
+* Classical Types of Extensions
 
   A Maven extension is a library that goes into
-  {{{/guides/mini/guide-maven-classloading.html#Core_Classloader}Maven Core classloader}}.
+  {{{/guides/mini/guide-maven-classloading.html#Core_Classloader}Maven Core classloader}}, then is really in the core execution of Maven, unlike
+  a plugin that runs in a child classloader separated from other plugins.
+
+  There are multiple reasons one wants to put his code in Maven Core classloader:
+
+  * {{{/guides/mini/guide-using-extensions.html}add a Wagon protocol}},
+
+  * override a component of Maven core, to change its behaviour (expertise required...),
+
+  * inject a {{{/examples/maven-3-lifecycle-extensions.html}lifecycle participant}}.
+
+  []
+
+* Configuring Maven Extensions
 
   There are multiple methods available to declare a library as an  extension:
 
@@ -55,7 +86,8 @@ Maven Extension Demo Study
   []
 
   Declaring an extension in POM is the most classical and flexible way to do: the only drawback is that the extension
-  is activated after POM reading, which can be too late for some very specific use cases like EventSpy.
+  is activated after POM reading, which can be too late for some very specific use cases like
+  {{{https://maven.apache.org/ref/current/maven-core/apidocs/org/apache/maven/eventspy/package-summary.html}EventSpy}}.
 
   Installing an extension directly inside Maven installation avoids the previous limitation, but is not flexible. 
 
