@@ -24,10 +24,14 @@ import java.util.Map;
 
 import org.apache.maven.eventspy.AbstractEventSpy;
 import org.apache.maven.eventspy.EventSpy;
+import org.apache.maven.execution.ExecutionEvent;
+import org.apache.maven.plugin.MojoExecution;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.aether.RepositoryEvent;
 
 /**
  * Event Spy demo (since Maven 3.0.2, with <a href="https://issues.apache.org/jira/browse/MNG-4936">MNG-4936</a>).
@@ -49,7 +53,7 @@ public class EventSpyDemo
         System.err.println( "EventSpyDemo init:" );
         for ( Map.Entry<String, Object> entry : context.getData().entrySet() )
         {
-            System.err.println( "EventSpyDemo init context: - " + entry.getKey() + " = " + entry.getValue() );
+            System.err.println( "             init context: - " + entry.getKey() + " = " + entry.getValue() );
         }
         container = (DefaultPlexusContainer) context.getData().get( "plexus" );
         dump( container.getClassWorld() );
@@ -58,7 +62,33 @@ public class EventSpyDemo
     public void onEvent( Object event )
         throws Exception
     {
-        //System.err.println( "EventSpyDemo onEvent: " + event );
+        if ( event instanceof ExecutionEvent )
+        {
+            ExecutionEvent exec = (ExecutionEvent) event;
+            MavenProject project = exec.getProject();
+            MojoExecution mojoExec = exec.getMojoExecution();
+            Exception ex = exec.getException();
+            System.err.println( "EventSpyDemo onEvent: ExecutionEvent " + exec.getType()
+                + ( project == null ? "" : ( " " + project.getId() ) )
+                + ( mojoExec == null ? "" : ( " " + mojoExec ) )
+                + ( ex == null ? "" : ( " " + ex ) ) );
+        }
+        else if ( event instanceof RepositoryEvent )
+        {
+            RepositoryEvent repo = (RepositoryEvent) event;
+            if ( repo.getType() == RepositoryEvent.EventType.ARTIFACT_RESOLVING || repo.getType() == RepositoryEvent.EventType.ARTIFACT_RESOLVED )
+            {
+              // don't display these evens: too many artifacts resolved along execution
+            }
+            else
+            {
+              System.err.println( "EventSpyDemo onEvent: RepositoryEvent " + ( (RepositoryEvent) event ).getType() );
+            }
+        }
+        else
+        {
+            System.err.println( "EventSpyDemo onEvent: " + event.getClass().getName() );
+        }
         Integer count = events.get( event.getClass().getName() );
         if ( count == null )
         {
@@ -74,12 +104,12 @@ public class EventSpyDemo
     public void close()
         throws Exception
     {
-        System.err.println( "EventSpyDemo close" );
+        System.err.println( "EventSpyDemo close:" );
         for ( Map.Entry<String, Integer> entry : events.entrySet() )
         {
-            System.err.println( "EventSpyDemo - " + entry.getValue() + " " + entry.getKey() );
+            System.err.println( "             - " + entry.getValue() + " " + entry.getKey() );
         }
-        dump( container.getClassWorld() );
+        //dump( container.getClassWorld() );
     }
 
     private void dump( ClassWorld cw )
