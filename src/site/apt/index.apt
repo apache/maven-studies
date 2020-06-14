@@ -51,7 +51,7 @@ Maven Extension Demo Study
   []
 
   This study implements each API (see {{{./apidocs/}javadoc}}) then tests implementations in ITs that configure the extension in different ways:
-  verification done after IT execution check expected differences.
+  verification done after IT execution check expected differences (see {{{/invoker-report.html}ITs results).
 
 * Classical Types of Extensions
 
