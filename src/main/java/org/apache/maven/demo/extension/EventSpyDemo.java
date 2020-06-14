@@ -76,7 +76,8 @@ public class EventSpyDemo
         else if ( event instanceof RepositoryEvent )
         {
             RepositoryEvent repo = (RepositoryEvent) event;
-            if ( repo.getType() == RepositoryEvent.EventType.ARTIFACT_RESOLVING || repo.getType() == RepositoryEvent.EventType.ARTIFACT_RESOLVED )
+            if ( repo.getType() == RepositoryEvent.EventType.ARTIFACT_RESOLVING
+                || repo.getType() == RepositoryEvent.EventType.ARTIFACT_RESOLVED )
             {
               // don't display these evens: too many artifacts resolved along execution
             }

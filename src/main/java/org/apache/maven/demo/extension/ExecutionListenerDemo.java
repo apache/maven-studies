@@ -27,7 +27,13 @@ import org.apache.maven.execution.ExecutionEvent;
 
 /**
  * Execution Listener demo.
- * <b>Question:</b> how to inject it to Maven runtime?
+ * <b>Question:</b> how to inject it to Maven runtime? LifecycleParticipant can get original ExecutionListener from
+ * request and replace with this class that should delegate to original listener (set <a href=
+ * "https://maven.apache.org/ref/3.6.3/maven-embedder/xref/org/apache/maven/cli/MavenCli.html#L1446">by CLI</a> to
+ * <a href=
+ * "https://maven.apache.org/ref/current/maven-embedder/apidocs/org/apache/maven/cli/event/ExecutionEventLogger.html"
+ * >ExecutionEventLogger</a> that displays to console).
+ * @see org.apache.maven.execution.MavenExecutionRequest#setExecutionListener(org.apache.maven.execution.ExecutionListener)
  */
 @Named( "demo" )
 @Singleton
