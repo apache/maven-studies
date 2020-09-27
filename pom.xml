@@ -56,7 +56,7 @@
   </distributionManagement>
 
   <properties>
-    <mavenVersion>3.0</mavenVersion>
+    <mavenVersion>3.6.0</mavenVersion>
     <javaVersion>8</javaVersion>
   </properties>
 
@@ -84,6 +84,7 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <version>1.18.12</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -107,9 +108,10 @@
               <goals>
                 <goal>install</goal>
               </goals>
-              <debug>false</debug>
+              <debug>true</debug>
               <showErrors>true</showErrors>
               <showVersion>true</showVersion>
+              <streamLogs>true</streamLogs>
             </configuration>
           </plugin>
         </plugins>

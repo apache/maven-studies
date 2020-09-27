@@ -35,11 +35,27 @@
         <artifactId>maven-sign-plugin</artifactId>
         <version>@project.version@</version>
         <executions>
+
           <execution>
+            <id>with-reflection</id>
             <goals>
               <goal>sign</goal>
             </goals>
+            <configuration>
+              <useReflection>true</useReflection>
+            </configuration>
           </execution>
+
+          <execution>
+            <id>with-method-call</id>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+            <configuration>
+              <useReflection>false</useReflection>
+            </configuration>
+          </execution>
+
         </executions>
       </plugin>
     </plugins>
