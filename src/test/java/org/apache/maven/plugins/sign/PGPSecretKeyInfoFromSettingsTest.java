@@ -37,14 +37,15 @@ import static org.mockito.Mockito.when;
 public class PGPSecretKeyInfoFromSettingsTest
 {
 
-    private static final String KEY_ID_HEX = "ABCDEF0123456789";
-    private static final long KEY_ID = 0xABCDEF0123456789L;
+    private static final String[] KEY_ID_HEX = {"ABCDEF0123456789", "0000000000000000", "FFFFFFFFFFFFFFFF"};
+    private static final long[] KEY_ID = {0xABCDEF0123456789L, 0L, 0xFFFFFFFFFFFFFFFFL};
 
     private static final String KEY_FILE_STR = "test.asc";
     private static final File KEY_FILE = new File( KEY_FILE_STR );
 
     private static final String KEY_PASS_STR = "pass";
     private static final char[] KEY_PASS = KEY_PASS_STR.toCharArray();
+
 
     @Mock
     private Server server;
@@ -53,7 +54,7 @@ public class PGPSecretKeyInfoFromSettingsTest
     public void allProperties()
     {
         // given
-        when( server.getUsername() ).thenReturn( KEY_ID_HEX );
+        when( server.getUsername() ).thenReturn( KEY_ID_HEX[0] );
         when( server.getPrivateKey() ).thenReturn( KEY_FILE_STR );
         when( server.getPassphrase() ).thenReturn( KEY_PASS_STR );
 
@@ -61,7 +62,7 @@ public class PGPSecretKeyInfoFromSettingsTest
         PGPSecretKeyInfoFromSettings info = new PGPSecretKeyInfoFromSettings( server );
 
         // then
-        assertThat( info.getKeyId(), is( KEY_ID ) );
+        assertThat( info.getKeyId(), is( KEY_ID[0] ) );
         assertThat( info.getFile(), is( KEY_FILE ) );
         assertThat( info.getPassphrase(), is( KEY_PASS ) );
     }
@@ -73,4 +74,20 @@ public class PGPSecretKeyInfoFromSettingsTest
                 () -> new PGPSecretKeyInfoFromSettings( null ) );
     }
 
+    @Test
+    public void keyIdShouldBeParsedProperly()
+    {
+
+        for ( int i = 0; i < KEY_ID_HEX.length; i++ )
+        {
+            // given
+            when( server.getUsername() ).thenReturn( KEY_ID_HEX[i] );
+
+            // when
+            PGPSecretKeyInfoFromSettings info = new PGPSecretKeyInfoFromSettings( server );
+
+            // then
+            assertThat( info.getKeyId(), is( KEY_ID[i] ) );
+        }
+    }
 }

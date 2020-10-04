@@ -19,48 +19,19 @@ package org.apache.maven.plugins.sign;
  * under the License.
  */
 
-import java.io.File;
-
 /**
- * Result of signing artifact.
+ * Problems during mojo executing.
+ * <p>
+ * We extend from {@link RuntimeException} to easy use in Java stream process.
  *
  * @author Slawomir Jaranowski
  */
-public class SignResult
+public class SignMojoException extends RuntimeException
 {
-    private final String classifier;
-    private final String extension;
-    private final File file;
+    private static final long serialVersionUID = -5595317162801384040L;
 
-
-    public SignResult( String classifier, String extension, File file )
+    public SignMojoException( Throwable cause )
     {
-        this.classifier = classifier;
-        this.extension = extension;
-        this.file = file;
-    }
-
-    public String getClassifier()
-    {
-        return classifier;
-    }
-
-    public String getExtension()
-    {
-        return extension;
-    }
-
-    public File getFile()
-    {
-        return file;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "SignResult["
-                + "classifier=" + classifier
-                + ", extension=" + extension
-                + ", file=" + file + ']';
+        super( cause );
     }
 }
