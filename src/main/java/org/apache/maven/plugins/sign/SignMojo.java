@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,8 +67,14 @@ public class SignMojo extends AbstractMojo
     @Parameter( defaultValue = "${session}", required = true, readonly = true )
     protected MavenSession session;
 
-    @Parameter( defaultValue = "pgpKey", required = true, property = "sign.serverId" )
-    private String serverId;
+    @Parameter( property = "sign.keyId" )
+    private String keyId;
+
+    @Parameter( required = true, property = "sign.keyPassphrase" )
+    private String keyPassphrase;
+
+    @Parameter( required = true, property = "sign.keyFile" )
+    private File keyFile;
 
     @Inject
     private MavenProjectHelper projectHelper;
@@ -79,8 +86,7 @@ public class SignMojo extends AbstractMojo
     {
         try
         {
-            pgpSigner = new PGPSigner(
-                    new PGPSecretKeyInfoFromSettings( session.getSettings().getServer( serverId ) ) );
+            pgpSigner = new PGPSigner( new PGPSecretKeyInfoFromParams( keyId, keyPassphrase, keyFile ) );
         }
         catch ( PGPSignerException e )
         {
