@@ -19,31 +19,38 @@ package org.apache.maven.plugins.sign;
  * under the License.
  */
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.sign.pgp.PGPSigner;
+import org.apache.maven.plugins.sign.pgp.PGPSignerException;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.aether.RepositorySystemSession;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.artifact.DefaultArtifact;
+import org.apache.maven.project.MavenProjectHelper;
+import org.apache.maven.project.artifact.ProjectArtifact;
 import org.eclipse.aether.transform.FileTransformer;
-import org.eclipse.aether.transform.FileTransformerManager;
 
-import java.io.BufferedReader;
-import java.io.File;
+import javax.inject.Inject;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Sign project artifacts.
+ *
+ * @author Slawomir Jaranowski
  */
 @Slf4j
 @Mojo( name = "sign", defaultPhase = LifecyclePhase.VERIFY )
@@ -56,95 +63,130 @@ public class SignMojo extends AbstractMojo
     @Parameter( defaultValue = "${session}", required = true, readonly = true )
     protected MavenSession session;
 
-    @Parameter( defaultValue = "${repositorySystemSession}", readonly = true )
-    private RepositorySystemSession repoSession;
+    @Inject
+    private MavenProjectHelper projectHelper;
 
-    @Parameter
-    private boolean useReflection;
+    private PGPSigner pgpSigner;
 
     @Override
     public void execute() throws MojoExecutionException
     {
-
-
-        LOGGER.info( "session: {}", session );
-        LOGGER.info( "repoSession: {}", repoSession );
-        LOGGER.info( "Artifact : {}", project.getArtifact() );
-        LOGGER.info( "AttachedArtifacts: {}", project.getAttachedArtifacts() );
-        LOGGER.info( "project.getFile: {}", project.getFile() );
-
-        Artifact pomArtifact = new DefaultArtifact( project.getArtifact().getGroupId(),
-                project.getArtifact().getArtifactId(), "", // classifier
-                "pom", project.getArtifact().getVersion() );
-        pomArtifact = pomArtifact.setFile( project.getFile() );
-
-
-        if ( useReflection )
+        try
         {
-            try
-            {
-                getFileTransformerFromReflection( repoSession, pomArtifact );
-            }
-            catch ( NoSuchMethodException nme )
-            {
-                LOGGER.info( " noSuchMethod: {}", nme.getMessage(), nme );
-            }
-            catch ( InvocationTargetException | IllegalAccessException e )
-            {
-                throw new MojoExecutionException( e.getMessage(), e );
-            }
+            pgpSigner = new PGPSigner(
+                    new PGPSecretKeyInfoFromSettings( session.getSettings().getServer( "pgpKey" ) ) );
+        }
+        catch ( PGPSignerException e )
+        {
+            throw new MojoExecutionException( e.getMessage(), e );
+        }
+
+        // collect artifact to sign
+        Set<Artifact> artifactsToSign = new HashSet<>();
+
+        artifactsToSign.add( new ProjectArtifact( project ) );
+        artifactsToSign.add( project.getArtifact() );
+        artifactsToSign.addAll( project.getAttachedArtifacts() );
+
+        // sign and attach signature to project
+        artifactsToSign.stream()
+                .map( this::signArtefact )
+                .flatMap( List::stream )
+                .forEach( this::attacheSignResult );
+    }
+
+    /**
+     * Sign given artifact. In result we can have many signatures, transformers can produce multiple output for one
+     * artifact.
+     * <p>
+     * This method ask transformers for inputStream for all artifact mutations, and sign each stream.
+     *
+     * @param artifact artifact to sign
+     * @return sign result
+     */
+    @SneakyThrows
+    private List<SignResult> signArtefact( Artifact artifact )
+    {
+        LOGGER.info( "Sign artifact: {}", artifact );
+
+        org.eclipse.aether.artifact.Artifact srcArtifact = new org.eclipse.aether.artifact.DefaultArtifact(
+                artifact.getGroupId(),
+                artifact.getArtifactId(),
+                artifact.getClassifier(),
+                artifact.getArtifactHandler().getExtension(),
+                artifact.getVersion(),
+                null,
+                artifact.getFile() );
+
+        Collection<FileTransformer> transformersForArtifact = session.getRepositorySession().getFileTransformerManager()
+                .getTransformersForArtifact( srcArtifact );
+
+        List<SignResult> result = new ArrayList<>();
+
+        if ( transformersForArtifact.isEmpty() )
+        {
+            result.add( makeSign( new BufferedInputStream( new FileInputStream( srcArtifact.getFile() ) ),
+                    srcArtifact.getArtifactId(),
+                    srcArtifact.getClassifier(),
+                    srcArtifact.getExtension() ) );
         }
         else
         {
-            getFileTransformerFromMethodCall( repoSession, pomArtifact );
+            for ( FileTransformer fileTransformer : transformersForArtifact )
+            {
+                org.eclipse.aether.artifact.Artifact dstArtifact = fileTransformer.transformArtifact( srcArtifact );
+                result.add( makeSign( fileTransformer.transformData( srcArtifact.getFile() ),
+                        dstArtifact.getArtifactId(),
+                        dstArtifact.getClassifier(),
+                        dstArtifact.getExtension() ) );
+            }
         }
+
+        return result;
     }
 
-    private void getFileTransformerFromMethodCall( RepositorySystemSession repoSession, Artifact pomArtifact )
+    /**
+     * Sign given input stream. In result we will have file with signature.
+     *
+     * @param inputStream data to sign
+     * @param artifactId used for build filename
+     * @param classifier used for build filename
+     * @param extension used for build filename
+     * @return result of signing
+     * @throws PGPSignerException if some thing wrong
+     */
+    private SignResult makeSign( InputStream inputStream, String artifactId, String classifier, String extension )
+            throws PGPSignerException
     {
-        LOGGER.info( " -> getFileTransformerFromMethodCall" );
-        FileTransformerManager fileTransformerManager = repoSession.getFileTransformerManager();
 
-        Collection<FileTransformer> transformersForArtifact = fileTransformerManager
-                .getTransformersForArtifact( pomArtifact );
+        String targetExt = extension + ".asc";
 
-        LOGGER.info( "    -> transformers: {}", transformersForArtifact );
+        String targetName = artifactId;
+        if ( classifier != null && !classifier.isEmpty() )
+        {
+            targetName += "-" + classifier;
+        }
+        targetName += "." + targetExt;
+
+        Path target = Paths.get( project.getBuild().getDirectory(), targetName );
+
+        pgpSigner.sign( inputStream, target );
+
+        return SignResult.builder()
+                .classifier( classifier )
+                .extension( targetExt )
+                .file( target.toFile() )
+                .build();
     }
 
-    private void getFileTransformerFromReflection( RepositorySystemSession repoSession, Artifact pomArtifact )
-            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException
+    /**
+     * Attache sign result to project.
+     */
+    private void attacheSignResult( SignResult signResult )
     {
-        LOGGER.info( " -> getFileTransformerFromReflection" );
+        LOGGER.info( "Attache signature: {}", signResult );
 
-        Method getFileTransformerManagerMethod = repoSession.getClass().getMethod( "getFileTransformerManager" );
-        LOGGER.info( "   -> getFileTransformerManagerMethod  : {}", getFileTransformerManagerMethod );
-
-        Object fileTransformerManager = getFileTransformerManagerMethod.invoke( repoSession );
-        LOGGER.info( "   -> fileTransformerManager: {}", fileTransformerManager );
-        if ( fileTransformerManager == null )
-        {
-            return;
-        }
-
-        Method getTransformersForArtifactMethod = fileTransformerManager.getClass()
-                .getMethod( "getTransformersForArtifact", Artifact.class );
-
-        LOGGER.info( "   -> getTransformersForArtifactMethod  : {}", getTransformersForArtifactMethod );
-        getTransformersForArtifactMethod.setAccessible( true );
-        Collection<?> transformersForArtifact = (Collection<?>) getTransformersForArtifactMethod
-                .invoke( fileTransformerManager, pomArtifact );
-        LOGGER.info( "   -> transformersForArtifact: {}", transformersForArtifact );
-
-        // what to do - if have more then one transformer ???
-        for ( Object o : transformersForArtifact )
-        {
-            LOGGER.info( "     -> transformer: {}", o );
-            Method transformDataMethod = o.getClass().getMethod( "transformData", File.class );
-            transformDataMethod.setAccessible( true );
-            InputStream inputStream = (InputStream) transformDataMethod.invoke( o, pomArtifact.getFile() );
-            String outPom = new BufferedReader( new InputStreamReader( inputStream ) ).lines()
-                    .collect( Collectors.joining( "\n" ) );
-            LOGGER.info( "outPom:\n{}", outPom );
-        }
+        projectHelper
+                .attachArtifact( project, signResult.getExtension(), signResult.getClassifier(), signResult.getFile() );
     }
 }

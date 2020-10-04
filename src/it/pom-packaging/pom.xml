@@ -27,37 +27,10 @@
   <groupId>test-group</groupId>
   <artifactId>test1</artifactId>
   <version>${revision}</version>
+  <packaging>pom</packaging>
 
   <build>
     <plugins>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.2.0</version>
-        <executions>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <file>test.dat</file>
-                  <type>dat</type>
-                </artifact>
-                <artifact>
-                  <file>test.dat</file>
-                  <type>dat</type>
-                  <classifier>c1</classifier>
-                </artifact>
-              </artifacts>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
