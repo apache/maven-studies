@@ -19,8 +19,6 @@ package org.apache.maven.plugins.sign;
  * under the License.
  */
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -34,10 +32,14 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.project.artifact.ProjectArtifact;
 import org.eclipse.aether.transform.FileTransformer;
+import org.eclipse.aether.transform.TransformException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,16 +54,20 @@ import java.util.Set;
  *
  * @author Slawomir Jaranowski
  */
-@Slf4j
 @Mojo( name = "sign", defaultPhase = LifecyclePhase.VERIFY )
 public class SignMojo extends AbstractMojo
 {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger( SignMojo.class );
 
     @Parameter( defaultValue = "${project}", readonly = true, required = true )
     private MavenProject project;
 
     @Parameter( defaultValue = "${session}", required = true, readonly = true )
     protected MavenSession session;
+
+    @Parameter( defaultValue = "pgpKey", required = true, property = "sign.serverId" )
+    private String serverId;
 
     @Inject
     private MavenProjectHelper projectHelper;
@@ -74,7 +80,7 @@ public class SignMojo extends AbstractMojo
         try
         {
             pgpSigner = new PGPSigner(
-                    new PGPSecretKeyInfoFromSettings( session.getSettings().getServer( "pgpKey" ) ) );
+                    new PGPSecretKeyInfoFromSettings( session.getSettings().getServer( serverId ) ) );
         }
         catch ( PGPSignerException e )
         {
@@ -104,7 +110,6 @@ public class SignMojo extends AbstractMojo
      * @param artifact artifact to sign
      * @return sign result
      */
-    @SneakyThrows
     private List<SignResult> signArtefact( Artifact artifact )
     {
         LOGGER.info( "Sign artifact: {}", artifact );
@@ -123,23 +128,34 @@ public class SignMojo extends AbstractMojo
 
         List<SignResult> result = new ArrayList<>();
 
-        if ( transformersForArtifact.isEmpty() )
+        try
         {
-            result.add( makeSign( new BufferedInputStream( new FileInputStream( srcArtifact.getFile() ) ),
-                    srcArtifact.getArtifactId(),
-                    srcArtifact.getClassifier(),
-                    srcArtifact.getExtension() ) );
-        }
-        else
-        {
-            for ( FileTransformer fileTransformer : transformersForArtifact )
+            if ( transformersForArtifact.isEmpty() )
             {
-                org.eclipse.aether.artifact.Artifact dstArtifact = fileTransformer.transformArtifact( srcArtifact );
-                result.add( makeSign( fileTransformer.transformData( srcArtifact.getFile() ),
-                        dstArtifact.getArtifactId(),
-                        dstArtifact.getClassifier(),
-                        dstArtifact.getExtension() ) );
+                try ( InputStream artifactInputStream = new BufferedInputStream(
+                        new FileInputStream( srcArtifact.getFile() ) ) )
+                {
+                    result.add( makeSignature( artifactInputStream,
+                            srcArtifact.getArtifactId(),
+                            srcArtifact.getClassifier(),
+                            srcArtifact.getExtension() ) );
+                }
             }
+            else
+            {
+                for ( FileTransformer fileTransformer : transformersForArtifact )
+                {
+                    org.eclipse.aether.artifact.Artifact dstArtifact = fileTransformer.transformArtifact( srcArtifact );
+                    result.add( makeSignature( fileTransformer.transformData( srcArtifact.getFile() ),
+                            dstArtifact.getArtifactId(),
+                            dstArtifact.getClassifier(),
+                            dstArtifact.getExtension() ) );
+                }
+            }
+        }
+        catch ( IOException | PGPSignerException | TransformException e )
+        {
+            throw new SignMojoException( e );
         }
 
         return result;
@@ -155,7 +171,7 @@ public class SignMojo extends AbstractMojo
      * @return result of signing
      * @throws PGPSignerException if some thing wrong
      */
-    private SignResult makeSign( InputStream inputStream, String artifactId, String classifier, String extension )
+    private SignResult makeSignature( InputStream inputStream, String artifactId, String classifier, String extension )
             throws PGPSignerException
     {
 
@@ -172,11 +188,7 @@ public class SignMojo extends AbstractMojo
 
         pgpSigner.sign( inputStream, target );
 
-        return SignResult.builder()
-                .classifier( classifier )
-                .extension( targetExt )
-                .file( target.toFile() )
-                .build();
+        return new SignResult( classifier, targetExt, target.toFile() );
     }
 
     /**

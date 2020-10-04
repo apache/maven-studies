@@ -19,7 +19,6 @@ package org.apache.maven.plugins.sign.pgp;
  * under the License.
  */
 
-import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.BCPGOutputStream;
 import org.bouncycastle.bcpg.HashAlgorithmTags;
@@ -34,6 +33,8 @@ import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentSignerBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -50,9 +51,10 @@ import java.util.List;
  *
  * @author Slawomir Jaranowski
  */
-@Slf4j
 public class PGPSigner
 {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger( PGPSigner.class );
 
     private final PGPSecretKeyInfo keyInfo;
 
@@ -129,10 +131,12 @@ public class PGPSigner
         {
             sGen.init( PGPSignature.BINARY_DOCUMENT, pgpPrivateKey );
 
-            int i;
-            while ( ( i = inputStream.read() ) >= 0 )
+
+            int len;
+            byte[] buffer = new byte[8 * 1024];
+            while ( ( len = inputStream.read( buffer ) ) >= 0 )
             {
-                sGen.update( (byte) i );
+                sGen.update( buffer, 0, len );
             }
 
             Files.createDirectories( outputPath.getParent() );

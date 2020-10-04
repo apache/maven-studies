@@ -19,21 +19,22 @@ package org.apache.maven.plugins.sign.pgp;
  * under the License.
  */
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.when;
 
-@Slf4j
 @RunWith( MockitoJUnitRunner.class )
 public class PGPSignerTest
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger( PGPSignerTest.class );
 
     @Mock
     private PGPSecretKeyInfo keyInfo;

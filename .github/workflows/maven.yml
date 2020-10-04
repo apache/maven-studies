@@ -38,7 +38,7 @@ jobs:
         uses: actions/cache@v2.1.1
         with:
           path: ~/.m2/repository
-          key: maven-${{ matrix.os }}-java${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
+          key: maven-sign-plugin-${{ matrix.os }}-java${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             maven-${{ matrix.os }}-java${{ matrix.java }}-
             maven-${{ matrix.os }}-
