@@ -20,49 +20,61 @@ package org.apache.maven.plugins.sign;
  */
 
 import org.apache.maven.plugins.sign.pgp.PGPSecretKeyInfo;
-import org.apache.maven.settings.Server;
 
 import java.io.File;
 import java.math.BigInteger;
-import java.util.Objects;
 
 /**
  * Information about pgp key from settings server
  *
  * @author Slawomir Jaranowski
  */
-public class PGPSecretKeyInfoFromSettings implements PGPSecretKeyInfo
+public class PGPSecretKeyInfoFromParams implements PGPSecretKeyInfo
 {
 
-    private final Server settingsServer;
+    private final Long keyId;
+    private final char[] passphrase;
+    private final File keyFile;
 
-    PGPSecretKeyInfoFromSettings( Server settingsServer )
+    PGPSecretKeyInfoFromParams( String keyIdStr, String passphraseStr, File keyFile )
     {
-        this.settingsServer = Objects.requireNonNull( settingsServer );
+
+
+        if ( keyIdStr != null )
+        {
+            try
+            {
+                this.keyId = new BigInteger( keyIdStr, 16 ).longValue();
+            }
+            catch ( NumberFormatException e )
+            {
+                throw new SignMojoException( e );
+            }
+        }
+        else
+        {
+            this.keyId = null;
+        }
+
+        this.passphrase = passphraseStr.toCharArray();
+        this.keyFile = keyFile;
     }
 
     @Override
     public Long getKeyId()
     {
-        try
-        {
-            return new BigInteger( settingsServer.getUsername(), 16 ).longValue();
-        }
-        catch ( NumberFormatException e )
-        {
-            return null;
-        }
+        return keyId;
     }
 
     @Override
     public char[] getPassphrase()
     {
-        return settingsServer.getPassphrase().toCharArray();
+        return passphrase;
     }
 
     @Override
     public File getFile()
     {
-        return new File( settingsServer.getPrivateKey() );
+        return keyFile;
     }
 }

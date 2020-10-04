@@ -70,7 +70,8 @@
               <goal>sign</goal>
             </goals>
             <configuration>
-              <useReflection>true</useReflection>
+              <keyPassphrase>testPass</keyPassphrase>
+              <keyFile>@project.basedir@/src/test/resources/pgp-priv-key.asc</keyFile>
             </configuration>
           </execution>
 

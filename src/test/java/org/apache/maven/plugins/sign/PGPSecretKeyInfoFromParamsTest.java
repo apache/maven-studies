@@ -20,46 +20,30 @@ package org.apache.maven.plugins.sign;
  *
  */
 
-import org.apache.maven.settings.Server;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.when;
 
-@RunWith( MockitoJUnitRunner.class )
-public class PGPSecretKeyInfoFromSettingsTest
+public class PGPSecretKeyInfoFromParamsTest
 {
 
     private static final String[] KEY_ID_HEX = {"ABCDEF0123456789", "0000000000000000", "FFFFFFFFFFFFFFFF"};
     private static final long[] KEY_ID = {0xABCDEF0123456789L, 0L, 0xFFFFFFFFFFFFFFFFL};
 
-    private static final String KEY_FILE_STR = "test.asc";
-    private static final File KEY_FILE = new File( KEY_FILE_STR );
+    private static final File KEY_FILE = new File( "test.asc" );
 
     private static final String KEY_PASS_STR = "pass";
     private static final char[] KEY_PASS = KEY_PASS_STR.toCharArray();
 
-
-    @Mock
-    private Server server;
-
     @Test
     public void allProperties()
     {
-        // given
-        when( server.getUsername() ).thenReturn( KEY_ID_HEX[0] );
-        when( server.getPrivateKey() ).thenReturn( KEY_FILE_STR );
-        when( server.getPassphrase() ).thenReturn( KEY_PASS_STR );
-
         // when
-        PGPSecretKeyInfoFromSettings info = new PGPSecretKeyInfoFromSettings( server );
+        PGPSecretKeyInfoFromParams info = new PGPSecretKeyInfoFromParams( KEY_ID_HEX[0], KEY_PASS_STR, KEY_FILE );
 
         // then
         assertThat( info.getKeyId(), is( KEY_ID[0] ) );
@@ -68,23 +52,19 @@ public class PGPSecretKeyInfoFromSettingsTest
     }
 
     @Test
-    public void npeShouldBeThrowForNullServer()
+    public void npeShouldBeThrowForNullPassphrase()
     {
         assertThrows( NullPointerException.class,
-                () -> new PGPSecretKeyInfoFromSettings( null ) );
+                () -> new PGPSecretKeyInfoFromParams( null, null, null ) );
     }
 
     @Test
     public void keyIdShouldBeParsedProperly()
     {
-
         for ( int i = 0; i < KEY_ID_HEX.length; i++ )
         {
-            // given
-            when( server.getUsername() ).thenReturn( KEY_ID_HEX[i] );
-
             // when
-            PGPSecretKeyInfoFromSettings info = new PGPSecretKeyInfoFromSettings( server );
+            PGPSecretKeyInfoFromParams info = new PGPSecretKeyInfoFromParams( KEY_ID_HEX[i], KEY_PASS_STR, KEY_FILE );
 
             // then
             assertThat( info.getKeyId(), is( KEY_ID[i] ) );

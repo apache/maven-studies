@@ -43,7 +43,9 @@
               <goal>sign</goal>
             </goals>
             <configuration>
-              <useReflection>true</useReflection>
+              <keyId>AC71B3E31C0C0D38</keyId>
+              <keyPassphrase>testPass</keyPassphrase>
+              <keyFile>@project.basedir@/src/test/resources/pgp-priv-key.asc</keyFile>
             </configuration>
           </execution>
 
