@@ -34,4 +34,9 @@ public class SignMojoException extends RuntimeException
     {
         super( cause );
     }
+
+    public SignMojoException( String message, Throwable cause )
+    {
+        super( message, cause );
+    }
 }

@@ -52,17 +52,4 @@
       </pluginRepositories>
     </profile>
   </profiles>
-
-  <servers>
-
-    <server>
-      <id>pgpKey</id>
-      <username>AC71B3E31C0C0D38</username>
-      <privateKey>@project.basedir@/src/test/resources/pgp-priv-key.asc</privateKey>
-      <!-- testPass -->
-      <!-- passphrase>{sM9eNH++jOkHSAUJGpZe6pSpJi7Z9l8hZII8w9GPSFs=}</passphrase -->
-      <passphrase>testPass</passphrase>
-    </server>
-
-  </servers>
 </settings>

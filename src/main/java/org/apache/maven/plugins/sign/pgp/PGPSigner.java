@@ -81,7 +81,7 @@ public class PGPSigner
     }
 
     /**
-     * Find and load private key form file.
+     * Find and load private key from file.
      */
     private void loadKey() throws IOException, PGPException, PGPSignerException
     {

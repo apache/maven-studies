@@ -48,7 +48,7 @@ public class PGPSecretKeyInfoFromParams implements PGPSecretKeyInfo
             }
             catch ( NumberFormatException e )
             {
-                throw new SignMojoException( e );
+                throw new SignMojoException( "The keyId is not a numerical value in hexadecimal format", e );
             }
         }
         else

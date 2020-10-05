@@ -90,6 +90,7 @@ public class SignMojo extends AbstractMojo
         }
         catch ( PGPSignerException e )
         {
+            LOGGER.error( "{}", e.getMessage() );
             throw new MojoExecutionException( e.getMessage(), e );
         }
 
@@ -102,13 +103,13 @@ public class SignMojo extends AbstractMojo
 
         // sign and attach signature to project
         artifactsToSign.stream()
-                .map( this::signArtefact )
+                .map( this::signArtifact )
                 .flatMap( List::stream )
-                .forEach( this::attacheSignResult );
+                .forEach( this::attachSignResult );
     }
 
     /**
-     * Sign given artifact. In result we can have many signatures, transformers can produce multiple output for one
+     * Sign given artifact. In result we can have multiple signatures, transformers can produce multiple output for one
      * artifact.
      * <p>
      * This method ask transformers for inputStream for all artifact mutations, and sign each stream.
@@ -116,9 +117,9 @@ public class SignMojo extends AbstractMojo
      * @param artifact artifact to sign
      * @return sign result
      */
-    private List<SignResult> signArtefact( Artifact artifact )
+    private List<SignResult> signArtifact( Artifact artifact )
     {
-        LOGGER.info( "Sign artifact: {}", artifact );
+        LOGGER.info( "Signing artifact: {}", artifact );
 
         org.eclipse.aether.artifact.Artifact srcArtifact = new org.eclipse.aether.artifact.DefaultArtifact(
                 artifact.getGroupId(),
@@ -200,9 +201,9 @@ public class SignMojo extends AbstractMojo
     /**
      * Attache sign result to project.
      */
-    private void attacheSignResult( SignResult signResult )
+    private void attachSignResult( SignResult signResult )
     {
-        LOGGER.info( "Attache signature: {}", signResult );
+        LOGGER.info( "Attach signature: {}", signResult );
 
         projectHelper
                 .attachArtifact( project, signResult.getExtension(), signResult.getClassifier(), signResult.getFile() );
