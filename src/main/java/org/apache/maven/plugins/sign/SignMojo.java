@@ -67,13 +67,13 @@ public class SignMojo extends AbstractMojo
     @Parameter( defaultValue = "${session}", required = true, readonly = true )
     protected MavenSession session;
 
-    @Parameter( property = "sign.keyId" )
+    @Parameter( property = "maven.sign.keyId" )
     private String keyId;
 
-    @Parameter( required = true, property = "sign.keyPassphrase" )
+    @Parameter( required = true, property = "maven.sign.keyPassphrase" )
     private String keyPassphrase;
 
-    @Parameter( required = true, property = "sign.keyFile" )
+    @Parameter( required = true, property = "maven.sign.keyFile" )
     private File keyFile;
 
     @Inject
