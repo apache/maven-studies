@@ -29,6 +29,8 @@ import org.bouncycastle.openpgp.PGPSecretKeyRing;
 import org.bouncycastle.openpgp.PGPSecretKeyRingCollection;
 import org.bouncycastle.openpgp.PGPSignature;
 import org.bouncycastle.openpgp.PGPSignatureGenerator;
+import org.bouncycastle.openpgp.PGPSignatureSubpacketGenerator;
+import org.bouncycastle.openpgp.PGPSignatureSubpacketVector;
 import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentSignerBuilder;
@@ -60,6 +62,7 @@ public class PGPSigner
 
     private PGPSecretKey secretKey;
     private PGPPrivateKey pgpPrivateKey;
+    private PGPSignatureSubpacketVector hashSubPackets;
 
     public PGPSigner( PGPSecretKeyInfo keyInfo ) throws PGPSignerException
     {
@@ -68,6 +71,7 @@ public class PGPSigner
         try
         {
             loadKey();
+            prepareAdditionalSubPacket();
         }
         catch ( IOException | PGPException e )
         {
@@ -78,6 +82,14 @@ public class PGPSigner
         secretKey.getUserIDs().forEachRemaining( uIds::add );
 
         LOGGER.info( "Loaded keyId: {}, uIds: {}", String.format( "%16X", secretKey.getKeyID() ), uIds );
+    }
+
+    private void prepareAdditionalSubPacket()
+    {
+        PGPSignatureSubpacketGenerator subPacketGenerator = new PGPSignatureSubpacketGenerator();
+        // PGP subpacket 33 - issuer key fingerprint
+        subPacketGenerator.setIssuerFingerprint( false, secretKey );
+        hashSubPackets = subPacketGenerator.generate();
     }
 
     /**
@@ -130,7 +142,7 @@ public class PGPSigner
         try
         {
             sGen.init( PGPSignature.BINARY_DOCUMENT, pgpPrivateKey );
-
+            sGen.setHashedSubpackets( hashSubPackets );
 
             int len;
             byte[] buffer = new byte[8 * 1024];
