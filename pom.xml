@@ -159,9 +159,6 @@
               <showErrors>true</showErrors>
               <showVersion>true</showVersion>
               <streamLogs>true</streamLogs>
-              <properties>
-                <settings.security>${project.basedir}/src/test/resources/settings-security.xml</settings.security>
-              </properties>
             </configuration>
           </plugin>
         </plugins>
