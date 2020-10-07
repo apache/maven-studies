@@ -19,6 +19,10 @@ name: GitHub CI
 
 on: [push, pull_request]
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build:
 
@@ -48,5 +52,11 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
 
-      - name: Build with Maven
-        run: mvn verify --errors --batch-mode --show-version -P run-its
+      - name: Download Maven 3.7.0-SNAPSHOT
+        run: |
+          mvn --errors --batch-mode --show-version dependency:unpack -Dartifact=org.apache.maven:apache-maven:3.7.0-SNAPSHOT:zip:bin -DoutputDirectory=target
+          ls -l ./target
+
+      - name: Build with Maven 3.7.0-SNAPSHOT
+        run: ./target/apache-maven/bin/mvn verify --errors --batch-mode --show-version -P run-its
+
