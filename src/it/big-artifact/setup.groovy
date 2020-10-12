@@ -21,7 +21,7 @@ import java.security.SecureRandom
  */
 
 
-def random = new SecureRandom();
+def random = new Random();
 def buf = new byte[ 800 * 1024 ];
 
 new File( basedir, "test.dat" ).withOutputStream { out ->
