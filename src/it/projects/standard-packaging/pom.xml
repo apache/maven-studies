@@ -26,11 +26,17 @@
 
   <groupId>test-group</groupId>
   <artifactId>standard-packaging</artifactId>
-  <version>${revision}</version>
+  <version>1.0.0</version>
 
+  <distributionManagement>
+    <repository>
+      <id>mrm</id>
+      <url>@mrm.distribution.url@</url>
+    </repository>
+  </distributionManagement>
+  
   <build>
     <plugins>
-
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>

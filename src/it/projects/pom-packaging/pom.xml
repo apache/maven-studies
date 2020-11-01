@@ -25,43 +25,19 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>test-group</groupId>
-  <artifactId>big-artifact</artifactId>
-  <version>${revision}</version>
+  <artifactId>pom-packaging</artifactId>
+  <version>1.0.0</version>
   <packaging>pom</packaging>
+  
+  <distributionManagement>
+    <repository>
+      <id>mrm</id>
+      <url>@mrm.distribution.url@</url>
+    </repository>
+  </distributionManagement>
 
   <build>
-    <extensions>
-      <extension>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-sign-plugin</artifactId>
-        <version>@project.version@</version>
-      </extension>
-    </extensions>
-
     <plugins>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.2.0</version>
-        <executions>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <file>test.dat</file>
-                  <type>dat</type>
-                </artifact>
-              </artifacts>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -82,7 +58,6 @@
 
         </executions>
       </plugin>
-
     </plugins>
   </build>
 </project>
