@@ -18,7 +18,7 @@
 ======================
 
 [![Apache License, Version 2.0, January 2004](https://img.shields.io/github/license/apache/maven.svg?label=License)][license]
-[![Jenkins Status](https://img.shields.io/jenkins/s/https/builds.apache.org/job/maven-box/job/maven-studies/job/maven-extension-demo.svg?)][build]
+[![Jenkins Status](https://img.shields.io/jenkins/s/https/ci-maven.apache.org/job/Maven/job/maven-box/job/maven-studies/job/maven-extension-demo.svg?)][build]
 
 Demo of Maven Extensions:
 * classical types of extensions,
@@ -29,4 +29,4 @@ See the [site][site] for more details.
 
 [site]: https://maven.apache.org/studies/extension-demo/
 [license]: https://www.apache.org/licenses/LICENSE-2.0
-[build]: https://builds.apache.org/job/maven-box/job/maven-studies/job/maven-extension-demo/
+[build]: https://ci-maven.apache.org/job/Maven/job/maven-box/job/maven-studies/job/maven-extension-demo/
