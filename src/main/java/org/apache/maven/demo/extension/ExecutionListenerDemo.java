@@ -19,24 +19,25 @@ package org.apache.maven.demo.extension;
  * under the License.
  */
 
-import javax.inject.Named;
-import javax.inject.Singleton;
-
 import org.apache.maven.execution.AbstractExecutionListener;
 import org.apache.maven.execution.ExecutionEvent;
 
 /**
- * Execution Listener demo.
- * <b>Question:</b> how to inject it to Maven runtime? LifecycleParticipant can get original ExecutionListener from
- * request and replace with this class that should delegate to original listener (set <a href=
- * "https://maven.apache.org/ref/3.6.3/maven-embedder/xref/org/apache/maven/cli/MavenCli.html#L1446">by CLI</a> to
+ * Execution Listener demo.<br>
+ * <b>Question:</b> how to instantiate and inject it to Maven runtime?<br>
+ * <b>Answer</b>: LifecycleParticipant (injected by Plexus/Sisu) can get original ExecutionListener from
+ * request and replace with this class that should delegate to original listener<br>
+ * <b>Example</b>: Maven's <a href=
+ * "https://maven.apache.org/ref/current/maven-embedder/xref/org/apache/maven/cli/MavenCli.html#L1446">CLI</a> creates
+ * a new instance of
  * <a href=
  * "https://maven.apache.org/ref/current/maven-embedder/apidocs/org/apache/maven/cli/event/ExecutionEventLogger.html"
- * >ExecutionEventLogger</a> that displays to console).
+ * >ExecutionEventLogger</a> that displays to console, and calls
+ * {@code eventSpyDispatcher.chainListener(executionListener)}.
+ *
  * @see org.apache.maven.execution.MavenExecutionRequest#setExecutionListener(org.apache.maven.execution.ExecutionListener)
  */
-@Named( "demo" )
-@Singleton
+// notice: just an object, not a Plexus/Sisu/JSR 330 component
 public class ExecutionListenerDemo
     extends AbstractExecutionListener
 {
