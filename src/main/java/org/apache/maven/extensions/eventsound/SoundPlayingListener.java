@@ -43,6 +43,18 @@ import org.apache.maven.execution.ExecutionEvent;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
 
+/**
+ * This listener class is responsible for playing audio notifications
+ * during the execution of Maven build processes. It listens to
+ * {@link ExecutionEvent}s and plays a success or failure sound 
+ * based on the session result.
+ *
+ * The class uses a configuration property file located in the Maven `conf/ext`
+ * directory to specify the audio files to play.
+ *
+ * @author Robertt Scholte
+ * @since 0.0.1
+ */
 @Named
 @Singleton
 public class SoundPlayingListener extends AbstractEventSpy implements LogEnabled
@@ -65,7 +77,7 @@ public class SoundPlayingListener extends AbstractEventSpy implements LogEnabled
     {
         String mavenHome = System.getProperty( "maven.home" );
         
-        config = Paths.get( mavenHome, "conf/ext/eventsound.properties").normalize();
+        config = Paths.get( mavenHome, "conf/ext/eventsound.properties" ).normalize();
         
         if ( !Files.isRegularFile( config ) )
         {
@@ -118,7 +130,7 @@ public class SoundPlayingListener extends AbstractEventSpy implements LogEnabled
             }
         }
     }
-    
+
     private class Player
         implements Runnable
     {
