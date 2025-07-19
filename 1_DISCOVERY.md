@@ -7,6 +7,8 @@ https://maven.apache.org/archetypes/maven-archetype-j2ee-simple/
 
 And few additions to [`pom.xml`](pom.xml) for some of the tests.
 
+TODO: test also everything with Maven 4
+
 ## basic test: deploy to local directory `target/deploy`
 
 Instead of classical deployment to an HTTP(S) server (PUT), or scp or any other file-oriented server, we can easily test `maven-deploy-plugin:deploy` to deploy to a local directory using `altDeploymentRepository` parameter with a `file:` target url (instead of updating `pom.xml`'s `project.distributionManagement.repository.id`and `url`):
@@ -81,4 +83,6 @@ And at Maven build end of execution (through [a MavenLifecycleParticipant](https
 
 TODO: dig into the upload aspects explained in [Using it](https://maveniverse.eu/docs/njord/using-it/) documentation...
 
-TODO: test also everything with Maven 4
+## deploy with [JReleaser](https://jreleaser.org/)
+
+TODO supports [Publishing to Maven Central](https://jreleaser.org/guide/latest/examples/maven/maven-central.html)
