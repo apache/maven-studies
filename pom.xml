@@ -9,17 +9,23 @@
   <version>1.0</version>
   <packaging>pom</packaging>
 
-  <name>deploy</name>
+  <name>deploy study root</name>
 
   <modules>
     <module>projects</module>
-    <module>primary-source</module>
-    <module>servlets</module>
-    <module>ejbs</module>
-    <module>ear</module>
   </modules>
 
   <distributionManagement>
+    <repository><!-- deploy release to -->
+      <id/>
+      <name/>
+      <url/>
+    </repository>
+    <snapshotRepository><!-- deploy snapshot to -->
+      <id/>
+      <name/>
+      <url/>
+    </snapshotRepository>
     <site>
       <id>site</id>
       <name>project website</name>

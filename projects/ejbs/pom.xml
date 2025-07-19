@@ -6,26 +6,16 @@
 
   <parent>
     <groupId>org.apache.maven.studies</groupId>
-    <artifactId>deploy</artifactId>
+    <artifactId>projects</artifactId>
     <version>1.0</version>
   </parent>
 
-  <artifactId>ear</artifactId>
-  <packaging>ear</packaging>
+  <artifactId>ejbs</artifactId>
+  <packaging>ejb</packaging>
 
-  <name>ear assembly</name>
+  <name>enterprise java beans</name>
 
   <dependencies>
-    <dependency>
-      <groupId>org.apache.maven.studies</groupId>
-      <artifactId>ejbs</artifactId>
-      <type>ejb</type>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.studies</groupId>
-      <artifactId>servlet</artifactId>
-      <type>war</type>
-    </dependency>
     <dependency>
       <groupId>org.apache.maven.studies</groupId>
       <artifactId>primary-source</artifactId>
@@ -39,7 +29,7 @@
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-ear-plugin</artifactId>
+        <artifactId>maven-ejb-plugin</artifactId>
         <configuration>
           <archive>
             <manifest>

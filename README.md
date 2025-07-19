@@ -12,7 +12,7 @@ And few additions to [`pom.xml`](pom.xml) for some of the tests.
 
 ## basic test: deploy to local directory `target/deploy`
 
-Instead of classical deployment to an HTTP(S) server (PUT), or scp or any other file-oriented server, we can easily test `maven-deploy-plugin:deploy` to deploy to a local directory using `altDeploymentRepository` parameter with a `file:` target url:
+Instead of classical deployment to an HTTP(S) server (PUT), or scp or any other file-oriented server, we can easily test `maven-deploy-plugin:deploy` to deploy to a local directory using `altDeploymentRepository` parameter with a `file:` target url (instead of updating `pom.xml`'s `project.distributionManagement.repository.id`and `url`):
 
     mvn clean deploy -DaltDeploymentRepository=local::file:target/deploy
 
@@ -36,9 +36,15 @@ Based on previous deploy to `target/deploy` local directory, it's easy to create
 
     tar cvf deploy-bundle.tar -C target/deploy org
 
-then upload with Maven Central Portal ["Publish Component"](https://central.sonatype.com/publishing) UI (publication is expected to fail because you don't have permissions on the groupId, but you can test and see the behaviour).
+then upload with Maven Central Portal ["Publish Component" UI](https://central.sonatype.org/publish/publish-portal-upload/) (publication is expected to fail because you don't have permissions on the groupId, but you can test and see the behaviour).
 
-Upload can also be done using `curl` to the [`/api/v1/publisher/upload`](https://central.sonatype.com/api-doc) API
+Upload can also be done [using `curl`](https://central.sonatype.org/publish/publish-portal-api/#uploading-a-deployment-bundle) to the [`/api/v1/publisher/upload`](https://central.sonatype.com/api-doc) API:
+
+    curl --request POST \
+    --verbose \
+    --header 'Authorization: Bearer ZXhhbXBsZV91c2VybmFtZTpleGFtcGxlX3Bhc3N3b3Jk' \
+    --form bundle=@deploy-bundle.tar \
+    https://central.sonatype.com/api/v1/publisher/upload
 
 ## deploy with Sonatype Maven plugin
 
@@ -46,7 +52,7 @@ https://central.sonatype.org/publish/publish-portal-maven/
 
     mvn clean deploy -Pcentral-publishing
 
-with a fake server defined in `~/.m2/settings.xml` for putting fake credentials:
+with a fake `publish-to-central` server id defined in `~/.m2/settings.xml` for putting fake credentials:
 
     <server>
       <id>publish-to-central</id>

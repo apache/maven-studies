@@ -17,5 +17,9 @@
 
   <modules>
     <module>logging</module>
+    <module>ear</module>
+    <module>ejbs</module>
+    <module>primary-source</module>
+    <module>servlet</module>
   </modules>
 </project>

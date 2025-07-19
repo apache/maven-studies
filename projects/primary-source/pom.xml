@@ -6,20 +6,16 @@
 
   <parent>
     <groupId>org.apache.maven.studies</groupId>
-    <artifactId>deploy</artifactId>
+    <artifactId>projects</artifactId>
     <version>1.0</version>
   </parent>
 
-  <artifactId>ejbs</artifactId>
-  <packaging>ejb</packaging>
+  <artifactId>primary-source</artifactId>
+  <packaging>jar</packaging>
 
-  <name>enterprise java beans</name>
+  <name>core project classes</name>
 
   <dependencies>
-    <dependency>
-      <groupId>org.apache.maven.studies</groupId>
-      <artifactId>primary-source</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.apache.maven.studies</groupId>
       <artifactId>logging</artifactId>
@@ -29,13 +25,11 @@
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-ejb-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-            </manifest>
-          </archive>
+          <minmemory>128m</minmemory>
+          <maxmemory>512m</maxmemory>
         </configuration>
       </plugin>
     </plugins>
