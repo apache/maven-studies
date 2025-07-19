@@ -19,4 +19,34 @@ This will be followed by an evaluation based on differences:
 - preparation for Maven 4,
 - anything new or unexpected
 
- TBD...
+Whatever solution is chosen, the fact that Maven Central Portal now provides an API where we upload one single archive deployment bundle help resrtying upload if anything goes unexpected.
+
+## Option 1: deploy to file:/target/staging and manual/scripted upload
+
+Pro: Configuring is easy, then script creating a tar or zip archive and upload with UI or `curl`.
+
+Limitation: scripting for upload (like it or not)
+
+## Option 2: Sonatype central-publishing-maven-plugin
+
+Pro: Easy to configure.
+
+Drawbacks:
+- no configuration in `pom.xml` `distributionManagement`
+- plugin not OSS
+- plugin deletes `maven-deploy-plugin` at runtime, which confuses plugins like `maven-artifact-plugin`, `cyclonedx-maven-plugin` or `spdx-maven-plugin` which detect skipped modules for deployment
+- does not work for Maven 4 (runtime deletion of a plugin binding will probably be a blocker)
+
+## Option 3: njord
+
+Pro: respects Maven's `pom.xml` `distributionManagement`, even hiding difference between SNAPSHOT and release, and hiding the fact that upload URL is different from download URL for Maven Central (something many tools don't manage well)
+
+Con: not clear how to automate publication when there are multiple stores
+
+Having a plugin to decouple Maven's build from publication to remote gives great opportunities to better manage the staging of content during build vs the upload/publication once build is ok.
+
+## Option 4: JReleaser
+
+Pro: does a lot
+
+Con: does a lot, and replaces classical Maven release plugin
