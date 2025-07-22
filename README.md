@@ -33,7 +33,7 @@ Pro: Easy to configure.
 
 Drawbacks:
 - no configuration in `pom.xml` `distributionManagement`
-- plugin not OSS
+- [plugin](https://central.sonatype.com/artifact/org.sonatype.central/central-publishing-maven-plugin) has OSS license and code visible in `-source.jar` but not in Git, and the governance and roadmap of is not open,
 - plugin deletes `maven-deploy-plugin` at runtime, which confuses plugins like `maven-artifact-plugin`, `cyclonedx-maven-plugin` or `spdx-maven-plugin` which detect skipped modules for deployment
 - does not work for Maven 4 (runtime deletion of a plugin binding will probably be a blocker)
 
