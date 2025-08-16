@@ -6,3 +6,15 @@ github:
     - java
     - build-management
     - maven
+  protected_branches:
+    master: { }
+    branch-protection: { }
+  pull_requests:
+    del_branch_on_merge: true
+  features:
+    issues: true
+
+notifications:
+  commits: commits@maven.apache.org
+  issues: issues@maven.apache.org
+  pullrequests: issues@maven.apache.org
