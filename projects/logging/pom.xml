@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.apache.maven.studies</groupId>
+    <groupId>org.apache.maven.studies.deploy</groupId>
     <artifactId>projects</artifactId>
     <version>1.0</version>
   </parent>
