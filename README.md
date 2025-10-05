@@ -10,7 +10,7 @@ This study starts with a [base base project](1_DISCOVERY.md) for the problem spa
 4. [use of Sonatype Central Publishing Maven Plugin](1.4_DISCOVERY-central-publishing.md)
 5. [use of njord Maven Resolver extension](1.5_DISCOVERY-njord.md)
 6. [use of JReleaser](1.6_DISCOVERY-jreleaser.md)
-
+7. [use of NXRM3](1.7_DISCOVERY-nxrm3-staging.md)
 
 This will be followed by an evaluation based on differences:
 - use of classical `pom.xml` configuration of publication target for SNASPHOT and release: `<project><distributionManagement><release><id>/<url>`,
@@ -34,7 +34,7 @@ Pro: Easy to configure.
 Drawbacks:
 - no configuration in `pom.xml` `distributionManagement`
 - [plugin](https://central.sonatype.com/artifact/org.sonatype.central/central-publishing-maven-plugin) has OSS license and code visible in `-source.jar` but not in Git, and the governance and roadmap of is not open,
-- plugin deletes `maven-deploy-plugin` at runtime, which confuses plugins like `maven-artifact-plugin`, `cyclonedx-maven-plugin` or `spdx-maven-plugin` which detect skipped modules for deployment
+- plugin deletes `maven-deploy-plugin` at runtime, which confuses plugins like `maven-artifact-plugin`, `cyclonedx-maven-plugin` or `spdx-maven-plugin` that detect skipped modules for deployment
 - does not work for Maven 4 (runtime deletion of a plugin binding will probably be a blocker)
 
 ## Option 3: njord

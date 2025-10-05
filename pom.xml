@@ -115,6 +115,55 @@
         </pluginManagement>
       </build>
     </profile>
+
+     <profile>
+       <id>asf-nxrm3</id>
+       <!--distributionManagement>
+         <repository>
+          <id>rao3</id>
+          <name>NXRM Releases</name>
+          <url>https://repository.apache.org:4443/repository/maven-staging/</url>
+         </repository>
+         <snapshotRepository>
+          <id>rao3</id>
+          <name>NXRM Snapshots</name>
+          <url>https://repository.apache.org:4443/repository/maven-snapshots/</url>
+         </snapshotRepository>
+       </distributionManagement-->
+       <build>
+        <plugins>
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nxrm3-maven-plugin</artifactId>
+            <version>1.0.12</version>
+            <extensions>true</extensions>
+            <configuration>
+              <nexusUrl>https://repository.apache.org:4443/</nexusUrl>
+              <serverId>rao3</serverId>
+              <repository>maven-staging</repository>
+            </configuration>
+            <executions>
+              <execution>
+                <id>default-deploy</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>deploy</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>default-deploy</id>
+                <phase>deploy-skip</phase><!-- disable standard maven-deploy-plugin deploy -->
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <dependencyManagement>
