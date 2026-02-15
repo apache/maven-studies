@@ -23,13 +23,13 @@ Whatever solution is chosen, the fact that Maven Central Portal now provides an 
 
 ## Option 1: deploy to file:/target/staging and manual/scripted upload
 
-Pro: Configuring is easy, then script creating a tar or zip archive and upload with UI or `curl`.
+Pro: Easy to run (does not even require `pom.xml` configuration), then script creating a tar or zip archive and upload with UI or `curl`.
 
-Limitation: scripting for upload (like it or not)
+Limitation: scripting for zip and upload (like it or not)
 
 ## Option 2: Sonatype central-publishing-maven-plugin
 
-Pro: Easy to configure.
+Pro: Easy to configure in `pom.xml`.
 
 Drawbacks:
 - no configuration in `pom.xml` `distributionManagement`
