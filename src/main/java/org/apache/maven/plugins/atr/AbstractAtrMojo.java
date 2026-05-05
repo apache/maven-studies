@@ -81,7 +81,7 @@ public abstract class AbstractAtrMojo extends AbstractMojo {
      * If set to true, the plugin will only execute in the execution root directory (typically the top-level
      * directory of a multi-module build). This prevents the plugin from running multiple times in child modules.
      */
-    @Parameter(property = "atr.runOnlyAtExecutionRoot", defaultValue = "false")
+    @Parameter(property = "atr.runOnlyAtExecutionRoot", defaultValue = "true")
     protected boolean runOnlyAtExecutionRoot;
 
     @Component
