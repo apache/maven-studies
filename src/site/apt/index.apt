@@ -83,7 +83,11 @@ Maven Core Extension Demo Study
   [[3]] use <<<-Dmaven.ext.class.path=[path to files]>>> (since Maven 3.0.2,
     see {{{https://issues.apache.org/jira/browse/MNG-4936}MNG-4936}}),
 
-  [[4]] configure in {{{/ref/current/maven-embedder/core-extensions.html}<<<.mvn/extensions.xml>>>}} (since Maven 3.3.1)
+  [[4]] configure in project's {{{/ref/current/maven-embedder/core-extensions.html}<<<.mvn/extensions.xml>>>}} (since Maven 3.3.1)
+
+  [[5]] configure in user's {{{/ref/current/maven-embedder/core-extensions.html}<<<$\{user.home\}/.m2/extensions.xml>>>}} (since {{{https://github.com/apache/maven/pull/11777}Maven 3.10}})
+
+  [[6]] configure in Maven installation's {{{/ref/current/maven-embedder/core-extensions.html}<<<$\{maven.home\}/conf/extensions.xml>>>}} (since {{{https://github.com/apache/maven/pull/11777}Maven 3.10}})
 
   []
 
@@ -99,6 +103,7 @@ Maven Core Extension Demo Study
   <<<.mvn/extensions.xml>>> is the ultimate solution for these use cases. Its only drawback is that it has been
   added only in Maven 3.3.1.
 
+  User's <<<$\{user.home\}/.m2/extensions.xml>>> or Maven installation's <<<$\{maven.home\}/conf/extensions.xml>>> permit wider configuration than per-project: introduced in Maven 3.10.
 
 * References
 
