@@ -25,7 +25,7 @@
 
 Maven Core Extension Demo Study
 
-  Demo of Maven Core Extensions:
+  Demo of Maven Core Extensions, to understand principles behind {{{/extensions/}existing extensions}}:
 
   * classical types of core extensions,
 
