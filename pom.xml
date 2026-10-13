@@ -17,12 +17,12 @@
 
   <distributionManagement>
     <repository><!-- deploy release to -->
-      <id/>
+      <id>default-value</id>
       <name/>
       <url/>
     </repository>
     <snapshotRepository><!-- deploy snapshot to -->
-      <id/>
+      <id>default-value</id>
       <name/>
       <url/>
     </snapshotRepository>
@@ -46,7 +46,7 @@
           <plugin>
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
-            <version>0.8.0</version>
+            <version>0.11.0</version>
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>publish-to-central</publishingServerId>
