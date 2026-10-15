@@ -51,6 +51,7 @@ under the License.
   <properties>
     <maven.site.path>studies/extension-demo</maven.site.path>
     <mavenVersion>3.1.1</mavenVersion>
+    <javaVersion>8</javaVersion>
   </properties>
 
   <dependencies>

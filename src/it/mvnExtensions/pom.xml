@@ -27,7 +27,7 @@ under the License.
   <parent>
     <groupId>org.apache.maven</groupId>
     <artifactId>maven-parent</artifactId>
-    <version>31</version>
+    <version>34</version>
   </parent>
 
   <groupId>demo.it</groupId>
@@ -38,4 +38,12 @@ under the License.
   <properties>
     <rat.skip>true</rat.skip>
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-archiver</artifactId>
+      <version>4.14.0</version>
+    </dependency>
+  </dependencies>
 </project>

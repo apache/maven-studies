@@ -62,13 +62,15 @@ public class EventSpyDemo
     public void onEvent( Object event )
         throws Exception
     {
+        String type = null;
         if ( event instanceof ExecutionEvent )
         {
             ExecutionEvent exec = (ExecutionEvent) event;
+            type = exec.getType().name();
             MavenProject project = exec.getProject();
             MojoExecution mojoExec = exec.getMojoExecution();
             Exception ex = exec.getException();
-            System.err.println( "EventSpyDemo onEvent: ExecutionEvent " + exec.getType()
+            System.err.println( "EventSpyDemo onExecutionEvent: " + exec.getType()
                 + ( project == null ? "" : ( " " + project.getId() ) )
                 + ( mojoExec == null ? "" : ( " " + mojoExec ) )
                 + ( ex == null ? "" : ( " " + ex ) ) );
@@ -76,40 +78,25 @@ public class EventSpyDemo
         else if ( event instanceof RepositoryEvent )
         {
             RepositoryEvent repo = (RepositoryEvent) event;
-            if ( repo.getType() == RepositoryEvent.EventType.ARTIFACT_RESOLVING
-                || repo.getType() == RepositoryEvent.EventType.ARTIFACT_RESOLVED )
-            {
-              // don't display these evens: too many artifacts resolved along execution
-            }
-            else
-            {
-              System.err.println( "EventSpyDemo onEvent: RepositoryEvent " + ( (RepositoryEvent) event ).getType() );
-            }
+            type = repo.getType().name();
+            System.err.println( "EventSpyDemo onRepositoryEvent: " + repo );
         }
         else
         {
-            System.err.println( "EventSpyDemo onEvent: " + event.getClass().getName() );
+            System.err.println( "EventSpyDemo onEvent: " + event );
         }
-        Integer count = events.get( event.getClass().getName() );
-        if ( count == null )
-        {
-            count = 1;
-        }
-        else
-        {
-            count++;
-        }
-        events.put( event.getClass().getName(), count );
+
+        String item = event.getClass().getName() + ( ( type == null ) ? "" : ( " " + type ) );
+        events.put( item, events.getOrDefault( item, 0 ) + 1 );
     }
 
     public void close()
         throws Exception
     {
         System.err.println( "EventSpyDemo close:" );
-        for ( Map.Entry<String, Integer> entry : events.entrySet() )
-        {
-            System.err.println( "             - " + entry.getValue() + " " + entry.getKey() );
-        }
+        events.entrySet().stream()
+            .sorted ( Map.Entry.<String, Integer>comparingByValue().reversed() )
+            .forEach( entry -> System.err.println( "             - " + entry.getValue() + " " + entry.getKey() ) );
         //dump( container.getClassWorld() );
     }
 
